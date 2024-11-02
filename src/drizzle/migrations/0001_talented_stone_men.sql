@@ -1,0 +1,1 @@
+ALTER TABLE "nutrition_plans" ALTER COLUMN "user_id" DROP NOT NULL;

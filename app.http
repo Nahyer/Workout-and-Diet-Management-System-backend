@@ -1,0 +1,197 @@
+###
+# Get all users (admin only)
+GET http://localhost:8000/api/users
+#Authorization: Bearer <admin-token>
+
+###
+# Get user by ID (admin or self)
+GET http://localhost:8000/api/users/2
+#Authorization: Bearer <user-token>
+
+###
+# Create new user (registration)
+POST http://localhost:8000/api/users
+Content-Type: application/json
+
+{
+  "fullName": "Lonnex Ngure",
+  "email": "lonnex@example.com",
+  "password": "securepassword123",
+  "dateOfBirth": "1990-01-01",
+  "gender": "male",
+  "height": 175,
+  "weight": 75,
+  "fitnessGoal": "muscle_gain",
+  "experienceLevel": "intermediate",
+  "preferredWorkoutType": "gym",
+  "activityLevel": "moderately active",
+  "medicalConditions": "None",
+  "dietaryRestrictions": "None"
+}
+
+###
+# Update user (self or admin)
+PUT http://localhost:8000/api/users/5
+#Authorization: Bearer <user-token>
+Content-Type: application/json
+
+{
+  "fullName": "Lonnex Ngure",
+  "email": "lonnex@example.com",
+  "password": "StrongPassword123",
+  "dateOfBirth": "1990-01-01",
+  "gender": "male",
+  "height": 180,
+  "weight": 50,
+  "fitnessGoal": "maintenance",
+  "experienceLevel": "intermediate",
+  "preferredWorkoutType": "gym",
+  "activityLevel": "very active"
+}
+
+###
+# Delete user (admin only)
+DELETE http://localhost:3000/api/users/1
+#Authorization: Bearer <admin-token>
+
+
+//exercise library
+###
+# Get all exercises
+GET http://localhost:8000/api/exercises
+
+###
+# Get exercise by ID
+GET http://localhost:8000/api/exercises/3
+
+###
+# Create new exercise
+POST http://localhost:8000/api/exercises
+Content-Type: application/json
+
+{
+  "name": "Barbell Bench Press",
+  "description": "A compound exercise that primarily targets the chest muscles",
+  "targetMuscleGroup": "chest",
+  "equipment": "barbell, bench",
+  "difficulty": "intermediate",
+  "workoutType": "gym",
+  "videoUrl": "https://example.com/bench-press-tutorial",
+  "imageUrl": "https://example.com/bench-press-form",
+  "caloriesBurnRate": 8.5,
+  "instructions": "1. Lie on the bench\n2. Grip the barbell slightly wider than shoulder width\n3. Lower the bar to your chest\n4. Press the bar back up to the starting position"
+}
+
+###
+# Update exercise
+PUT http://localhost:8000/api/exercises/1
+Content-Type: application/json
+
+{
+  "name": "Bench Press",
+  "description": "Classic chest exercise",
+  "targetMuscleGroup": "chest",
+  "equipment": "barbell, bench",
+  "difficulty": "intermediate",
+  "workoutType": "gym",
+  "videoUrl": "https://example.com/bench-press-tutorial-updated",
+  "imageUrl": "https://example.com/bench-press-form-updated",
+  "caloriesBurnRate": 9.0,
+  "instructions": "Lie on bench, lower bar to chest, push up"
+}
+
+###
+# Delete exercise
+DELETE http://localhost:8000/api/exercises/1
+
+
+//workout plans
+###
+# Get all workout plans for a user
+GET http://localhost:8000/api/workout-plans/1
+
+###
+# Get a workout plan by ID
+GET http://localhost:8000/api/workout-plans/3
+
+###
+# Create a new workout plan
+POST http://localhost:8000/api/workout-plans
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "name": "Strength Training Plan",
+  "description": "Focuses on building muscle mass",
+  "goal": "muscle_gain",
+  "difficulty": "intermediate",
+  "durationWeeks": 12,
+  "isAiGenerated": false,
+  "workoutType": "gym"
+}
+
+###
+# Update a workout plan
+PUT http://localhost:8000/api/workout-plans/5
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "name": "Updated Strength Training Plan",
+  "description": "Modified to focus more on compound exercises",
+  "goal": "muscle_gain",
+  "difficulty": "advanced",
+  "durationWeeks": 12,
+  "isAiGenerated": false,
+  "workoutType": "gym"
+}
+
+###
+# Delete a workout plan
+DELETE http://localhost:8000/api/workout-plans/123
+
+
+// workout sessions
+###
+# Get all workout sessions
+GET http://localhost:8000/api/workout-sessions
+
+###
+# Get workout session by ID
+GET http://localhost:8000/api/workout-sessions/1
+
+###
+# Get workout sessions by plan ID
+GET http://localhost:8000/api/workout-plans/1/sessions
+
+###
+# Create new workout session
+POST http://localhost:8000/api/workout-sessions
+Content-Type: application/json
+
+{
+  "planId": 1,
+  "dayNumber": 1,
+  "name": "Upper Body Strength",
+  "description": "Focus on chest, shoulders, and triceps",
+  "targetMuscleGroups": "chest, shoulders, triceps",
+  "duration": 60
+}
+
+###
+# Update workout session
+PUT http://localhost:8000/api/workout-sessions/1
+Content-Type: application/json
+
+{
+  "planId": 1,
+  "dayNumber": 1,
+  "name": "Upper Body Power",
+  "description": "Heavy focus on chest and shoulders",
+  "targetMuscleGroups": "chest, shoulders, triceps",
+  "duration": 75
+}
+
+###
+# Delete workout session
+DELETE http://localhost:8000/api/workout-sessions/1
