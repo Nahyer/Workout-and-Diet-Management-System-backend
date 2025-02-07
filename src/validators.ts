@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { userRoleEnum, fitnessGoalEnum, experienceLevelEnum, workoutTypeEnum } from "./drizzle/schema";
+import { userRoleEnum, fitnessGoalEnum, experienceLevelEnum, workoutTypeEnum, activityLevelEnum } from "./drizzle/schema";
 
 export const userSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -151,4 +151,29 @@ export const aiConfigurationSchema = z.object({
     min: z.number().positive(),
     max: z.number().positive()
   }))
+});
+
+
+export const registrationSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters long"),
+  dateOfBirth: z.string().refine((date) => !isNaN(new Date(date).getTime()), {
+    message: "Invalid date format",
+  }),
+  gender: z.string().min(1, "Gender is required"),
+  height: z.number().positive("Height must be a positive number"),
+  weight: z.number().positive("Weight must be a positive number"),
+  role: z.enum(["user", "admin"]).default("user"),
+  fitnessGoal: z.enum(["weight_loss", "muscle_gain", "maintenance"]),
+  experienceLevel: z.enum(["beginner", "intermediate", "advanced"]),
+  preferredWorkoutType: z.enum(["home", "gym"]),
+  activityLevel: z.enum(["sedentary", "lightly_active", "moderately_active", "very_active"]),
+  medicalConditions: z.string().optional(),
+  dietaryRestrictions: z.string().optional(),
+});
+
+export const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
 });

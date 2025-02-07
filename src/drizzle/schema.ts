@@ -19,6 +19,7 @@ import {
   export const fitnessGoalEnum = pgEnum("fitness_goal", ["weight_loss", "muscle_gain", "maintenance"]);
   export const experienceLevelEnum = pgEnum("experience_level", ["beginner", "intermediate", "advanced"]);
   export const workoutTypeEnum = pgEnum("workout_type", ["home", "gym"]);
+  export const activityLevelEnum = pgEnum("activity_level", ["sedentary", "lightly_active", "moderately_active", "very_active"]);
   
   // Users Table - Stores user profile and fitness preferences
   export const UsersTable = pgTable("users", {

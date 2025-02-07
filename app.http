@@ -1,3 +1,38 @@
+# Register a new user
+POST http://localhost:8000/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Lonnex Waithaka",
+  "email": "lonnexwaithaka@gmail.com",
+  "password": "lonnex123456789",
+  "dateOfBirth": "1990-01-01",
+  "gender": "male",
+  "height": 175.5,
+  "weight": 70.5,
+  "role": "admin",
+  "fitnessGoal": "weight_loss",
+  "experienceLevel": "beginner",
+  "preferredWorkoutType": "home",
+  "activityLevel": "moderately_active",
+  "medicalConditions": "None",
+  "dietaryRestrictions": "Lactose intolerant"
+}
+
+###
+# Login
+POST http://localhost:8000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "lonnexwaithaka@gmail.com",
+  "password": "lonnex123456789"
+}
+
+
+
+
+
 ###
 # Get all users (admin only)
 GET http://localhost:8000/api/users
@@ -171,7 +206,7 @@ Content-Type: application/json
 
 {
   "planId": 1,
-  "dayNumber": 1,
+  "dayNumber": 4,
   "name": "Upper Body Strength",
   "description": "Focus on chest, shoulders, and triceps",
   "targetMuscleGroups": "chest, shoulders, triceps",
@@ -180,7 +215,7 @@ Content-Type: application/json
 
 ###
 # Update workout session
-PUT http://localhost:8000/api/workout-sessions/1
+PUT http://localhost:8000/api/workout-sessions/4
 Content-Type: application/json
 
 {
@@ -194,4 +229,461 @@ Content-Type: application/json
 
 ###
 # Delete workout session
-DELETE http://localhost:8000/api/workout-sessions/1
+DELETE http://localhost:8000/api/workout-sessions/4
+
+
+//workout exercises
+###
+# Get all workout exercises
+GET http://localhost:8000/api/workout-exercises
+
+###
+# Get workout exercise by ID
+GET http://localhost:8000/api/workout-exercises/3
+
+###
+# Get workout exercises by session ID
+GET http://localhost:8000/api/workout-sessions/1/exercises
+
+###
+# Create new workout exercise
+POST http://localhost:8000/api/workout-exercises
+Content-Type: application/json
+
+{
+  "sessionId": 1,
+  "exerciseId": 1,
+  "sets": 3,
+  "reps": 12,
+  "restPeriod": 60,
+  "order": 1
+}
+
+###
+# Update workout exercise
+PUT http://localhost:8000/api/workout-exercises/13
+Content-Type: application/json
+
+{
+  "sessionId": 1,
+  "exerciseId": 1,
+  "sets": 4,
+  "reps": 10,
+  "restPeriod": 90,
+  "order": 1
+}
+
+###
+# Delete workout exercise
+DELETE http://localhost:8000/api/workout-exercises/13
+
+
+//nutrition plans
+###
+# Get all nutrition plans
+GET http://localhost:8000/api/nutrition-plans
+
+###
+# Get nutrition plans for a specific user
+GET http://localhost:8000/api/nutrition-plans?userId=1
+
+###
+# Get nutrition plan by ID
+GET http://localhost:8000/api/nutrition-plans/6
+
+###
+# Create new nutrition plan
+POST http://localhost:8000/api/nutrition-plans
+Content-Type: application/json
+
+{
+  "goal": "muscle_gain",
+  "dailyCalories": 3000,
+  "proteinGrams": 180,
+  "carbsGrams": 375,
+  "fatGrams": 83,
+  "mealsPerDay": 5,
+  "isAiGenerated": false,
+  "restrictions": "Lactose intolerant"
+}
+
+###
+# Update nutrition plan
+PUT http://localhost:8000/api/nutrition-plans/14
+Content-Type: application/json
+
+{
+  "goal": "weight_loss",
+  "dailyCalories": 2500,
+  "proteinGrams": 150,
+  "carbsGrams": 250,
+  "fatGrams": 70,
+  "mealsPerDay": 4,
+  "restrictions": "Vegetarian"
+}
+
+###
+# Delete nutrition plan
+DELETE http://localhost:8000/api/nutrition-plans/14
+
+
+
+
+//Meal Plans 
+###
+# Get all meal plans
+GET http://localhost:8000/api/meal-plans
+
+### Get meal plan by ID
+GET http://localhost:8000/api/meal-plans/425
+
+### Get meal plans by nutrition plan ID
+GET http://localhost:8000/api/nutrition-plans/11/meal-plans
+
+### Create a new meal plan
+POST http://localhost:8000/api/meal-plans
+Content-Type: application/json
+
+{
+  "nutritionPlanId": 13,
+  "dayNumber": 1,
+  "mealTime": "breakfast",
+  "name": "High Protein Breakfast Bowl",
+  "description": "A nutritious breakfast with high protein content",
+  "calories": 400,
+  "protein": 30,
+  "carbs": 30,
+  "fat": 15,
+  "recipe": "Mix Greek yogurt, protein powder, berries, and nuts. Top with chia seeds."
+}
+
+### Update a meal plan
+PUT http://localhost:8000/api/meal-plans/429
+Content-Type: application/json
+
+{
+  "nutritionPlanId": 13,
+  "dayNumber": 1,
+  "mealTime": "breakfast",
+  "name": "Updated High Protein Breakfast Bowl",
+  "description": "An even more nutritious breakfast with high protein content",
+  "calories": 450,
+  "protein": 35,
+  "carbs": 35,
+  "fat": 15,
+  "recipe": "Updated recipe: Mix Greek yogurt, protein powder, mixed berries, and assorted nuts. Top with chia seeds and a drizzle of honey."
+}
+
+### Delete a meal plan
+DELETE http://localhost:8000/api/meal-plans/428
+
+
+// progress records
+###
+# Get all progress records
+GET http://localhost:8000/api/progress
+
+###
+# Get progress record by ID
+GET http://localhost:8000/api/progress/3
+
+###
+# Get progress records by user ID
+GET http://localhost:8000/api/progress/user/4
+
+###
+# Create new progress record
+POST http://localhost:8000/api/progress
+Content-Type: application/json
+
+{
+  "userId": 5,
+  "date": "2024-03-01",
+  "weight": 75.5,
+  "bodyFatPercentage": 15.5,
+  "chest": 95.0,
+  "waist": 80.0,
+  "hips": 90.0,
+  "arms": 35.0,
+  "thighs": 55.0,
+  "notes": "Monthly progress check - feeling stronger!"
+}
+
+###
+# Update progress record
+PUT http://localhost:8000/api/progress/1
+Content-Type: application/json
+
+{
+  "userId": 5,
+  "date": "2024-03-01",
+  "weight": 74.8,
+  "bodyFatPercentage": 15.2,
+  "notes": "Updated measurements after morning workout"
+}
+
+###
+# Delete progress record
+DELETE http://localhost:8000/api/progress/1
+
+
+//workout logs
+###
+# Get all workout logs
+GET http://localhost:8000/api/workout-logs
+
+###
+# Get workout log by ID
+GET http://localhost:8000/api/workout-logs/2
+
+###
+# Get workout logs by user ID
+GET http://localhost:8000/api/users/4/workout-logs
+
+###
+# Create new workout log
+POST http://localhost:8000/api/workout-logs
+Content-Type: application/json
+
+{
+  "userId": 5,
+  "sessionId": 1,
+  "date": "2024-11-02T10:00:00Z",
+  "duration": 60,
+  "caloriesBurned": 300,
+  "completed": true,
+  "notes": "Great workout session, increased weights on all exercises"
+}
+
+###
+# Update workout log
+PUT http://localhost:8000/api/workout-logs/5
+Content-Type: application/json
+
+{
+  "userId": 5,
+  "sessionId": 1,
+  "date": "2024-11-02T10:00:00Z",
+  "duration": 75,
+  "caloriesBurned": 350,
+  "completed": true,
+  "notes": "Extended workout session with additional exercises"
+}
+
+###
+# Delete workout log
+DELETE http://localhost:8000/api/workout-logs/5
+
+
+//exercise logs
+###
+# Get all exercise logs
+GET http://localhost:8000/api/exercise-logs
+
+###
+# Get exercise log by ID
+GET http://localhost:8000/api/exercise-logs/1
+
+###
+# Get exercise logs for a specific workout log
+GET http://localhost:8000/api/workout-logs/4/exercises
+
+###
+# Create new exercise log
+POST http://localhost:8000/api/exercise-logs
+Content-Type: application/json
+
+{
+  "logId": 1,
+  "exerciseId": 1,
+  "sets": 3,
+  "reps": 12,
+  "weight": 60.5,
+  "notes": "Increased weight by 2.5kg from last session"
+}
+
+###
+# Update exercise log
+PUT http://localhost:8000/api/exercise-logs/5
+Content-Type: application/json
+
+{
+  "logId": 1,
+  "exerciseId": 1,
+  "sets": 4,
+  "reps": 10,
+  "weight": 62.5,
+  "notes": "Feeling stronger, added an extra set"
+}
+
+###
+# Delete exercise log
+DELETE http://localhost:8000/api/exercise-logs/5
+
+
+//AI plan histories
+###
+# Get all AI plan histories
+GET http://localhost:8000/api/ai-plans-history
+
+###
+# Get AI plan history by ID
+GET http://localhost:8000/api/ai-plans-history/1
+
+###
+# Get AI plan histories by user ID
+GET http://localhost:8000/api/ai-plans-history/user/1
+
+###
+# Create new AI plan history
+POST http://localhost:8000/api/ai-plans-history
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "workoutPlanId": 1,
+  "nutritionPlanId": 5,
+  "userInputs": {
+    "fitnessGoal": "weight_loss",
+    "experienceLevel": "beginner",
+    "workoutType": "home",
+    "dietaryRestrictions": "none"
+  },
+  "rating": 5,
+  "feedback": "Great plan, exactly what I needed!"
+}
+
+###
+# Update AI plan history
+PUT http://localhost:8000/api/ai-plans-history/6
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "userInputs": {
+    "fitnessGoal": "muscle_gain",
+    "experienceLevel": "intermediate",
+    "workoutType": "gym",
+    "dietaryRestrictions": "vegetarian"
+  },
+  "rating": 4,
+  "feedback": "Good plan, but needed more variety"
+}
+
+###
+# Delete AI plan history
+DELETE http://localhost:8000/api/ai-plans-history/6
+
+
+//AI configurations
+###
+# Get all AI configurations
+GET http://localhost:8000/api/ai-configurations
+
+###
+# Get AI configuration by ID
+GET http://localhost:8000/api/ai-configurations/8
+
+###
+# Get AI configuration by goal, level and type
+GET http://localhost:8000/api/ai-configurations/match?fitnessGoal=muscle_gain&experienceLevel=intermediate&workoutType=gym
+
+###
+# Create new AI configuration
+POST http://localhost:8000/api/ai-configurations
+Content-Type: application/json
+
+{
+  "fitnessGoal": "muscle_gain",
+  "experienceLevel": "intermediate",
+  "workoutType": "gym",
+  "muscleGroupSplit": {
+    "day1": "chest_triceps",
+    "day2": "back_biceps",
+    "day3": "legs_shoulders",
+    "day4": "rest",
+    "day5": "push",
+    "day6": "pull",
+    "day7": "legs"
+  },
+  "exerciseCountRange": {
+    "min": 4,
+    "max": 6
+  },
+  "restPeriodRange": {
+    "min": 60,
+    "max": 90
+  },
+  "setRanges": {
+    "compound": {
+      "min": 3,
+      "max": 4
+    },
+    "isolation": {
+      "min": 3,
+      "max": 4
+    }
+  },
+  "repRanges": {
+    "compound": {
+      "min": 6,
+      "max": 10
+    },
+    "isolation": {
+      "min": 8,
+      "max": 12
+    }
+  }
+}
+
+###
+# Update AI configuration
+PUT http://localhost:8000/api/ai-configurations/22
+Content-Type: application/json
+
+{
+  "fitnessGoal": "muscle_gain",
+  "experienceLevel": "intermediate",
+  "workoutType": "gym",
+  "muscleGroupSplit": {
+    "day1": "push",
+    "day2": "pull",
+    "day3": "legs",
+    "day4": "rest",
+    "day5": "upper",
+    "day6": "lower",
+    "day7": "rest"
+  },
+  "exerciseCountRange": {
+    "min": 5,
+    "max": 7
+  },
+  "restPeriodRange": {
+    "min": 45,
+    "max": 75
+  },
+  "setRanges": {
+    "compound": {
+      "min": 3,
+      "max": 4
+    },
+    "isolation": {
+      "min": 3,
+      "max": 4
+    }
+  },
+  "repRanges": {
+    "compound": {
+      "min": 6,
+      "max": 10
+    },
+    "isolation": {
+      "min": 8,
+      "max": 12
+    }
+  }
+}
+
+###
+# Delete AI configuration
+DELETE http://localhost:8000/api/ai-configurations/22
