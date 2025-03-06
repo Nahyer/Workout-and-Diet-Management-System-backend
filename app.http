@@ -3,20 +3,20 @@ POST http://localhost:8000/api/auth/register
 Content-Type: application/json
 
 {
-  "fullName": "Lonnex Waithaka",
-  "email": "lonnexwaithaka@gmail.com",
-  "password": "lonnex123456789",
-  "dateOfBirth": "1990-01-01",
+  "fullName": "Emmanuel Karoki",
+  "email": "emmanuelkaroki@gmail.com",
+  "password": "emmanuelchairman",
+  "dateOfBirth": "2002-10-12",
   "gender": "male",
-  "height": 175.5,
-  "weight": 70.5,
-  "role": "admin",
+  "height": 170,
+  "weight": 80,
+  "role": "user",
   "fitnessGoal": "weight_loss",
-  "experienceLevel": "beginner",
+  "experienceLevel": "intermediate",
   "preferredWorkoutType": "home",
-  "activityLevel": "moderately_active",
-  "medicalConditions": "None",
-  "dietaryRestrictions": "Lactose intolerant"
+  "activityLevel": "sedentary",
+  "medicalConditions": "Asthma",
+  "dietaryRestrictions": "Vegetarianism"
 }
 
 ###
@@ -143,7 +143,7 @@ DELETE http://localhost:8000/api/exercises/1
 //workout plans
 ###
 # Get all workout plans for a user
-GET http://localhost:8000/api/workout-plans/1
+GET http://localhost:8000/api/workout-plans/23
 
 ###
 # Get a workout plan by ID
@@ -285,7 +285,7 @@ GET http://localhost:8000/api/nutrition-plans
 
 ###
 # Get nutrition plans for a specific user
-GET http://localhost:8000/api/nutrition-plans?userId=1
+GET http://localhost:8000/api/nutrition-plans?userId=23
 
 ###
 # Get nutrition plan by ID

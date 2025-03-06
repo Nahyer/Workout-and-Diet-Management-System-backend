@@ -1,9 +1,12 @@
+// auth/auth.controller.ts
 import "dotenv/config";
 import { Context } from "hono";
 import { createAuthUserService, userLoginService } from "./auth.service";
 import bcrypt from "bcrypt";
 import { sign } from "hono/jwt";
 import { userService } from "../users/users.service";
+import { aiPlanGenerationService } from "../ai-plans-history/ai-plan-generation.service";
+import { nutritionPlanGenerationService } from "../nutrition-plans/nutrition-plan-generation.service";
 
 export const registerUser = async (c: Context) => {
   try {
@@ -35,12 +38,33 @@ export const registerUser = async (c: Context) => {
       password: hashedPassword,
     });
 
+    // Initialize plan generation results
+    let workoutPlanGenerated = false;
+    let nutritionPlanGenerated = false;
+
+    // If user was successfully created and has a userId, generate plans
+    if (createdUser && typeof createdUser.userId === 'number') {
+      try {
+        // Generate AI workout plan using rule-based logic
+        workoutPlanGenerated = await aiPlanGenerationService.generateWorkoutPlan(createdUser.userId);
+        
+        // Generate nutrition plan
+        nutritionPlanGenerated = await nutritionPlanGenerationService.generateNutritionPlan(createdUser.userId);
+      } catch (planError) {
+        // Log the error but don't fail the registration process
+        console.error("Error generating plans:", planError);
+      }
+    }
+
+    // Return success response with user data and plan generation status
     return c.json({ 
       message: "User registered successfully", 
       user: {
         ...createdUser,
         password: undefined 
-      }
+      },
+      workoutPlanGenerated,
+      nutritionPlanGenerated
     }, 201);
   } catch (error: any) {
     return c.json({ error: error?.message }, 400);
