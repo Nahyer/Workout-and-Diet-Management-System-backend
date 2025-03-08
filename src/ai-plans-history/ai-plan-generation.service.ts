@@ -1,5 +1,5 @@
 // ai-plans-history/ai-plan-generation.service.ts
-import { eq, and } from "drizzle-orm";
+import { eq, and, or, like } from "drizzle-orm";
 import db from "../drizzle/db";
 import { 
   AiConfigurationTable, 
@@ -48,6 +48,8 @@ export const aiPlanGenerationService = {
   // Main function to generate a workout plan for a user
   generateWorkoutPlan: async (userId: number): Promise<boolean> => {
     try {
+      console.log(`Starting workout plan generation for user ID: ${userId}`);
+      
       // 1. Get user data
       const [user] = await db
         .select()
@@ -59,6 +61,8 @@ export const aiPlanGenerationService = {
         return false;
       }
       
+      console.log(`User found: ${user.fullName}, goal: ${user.fitnessGoal}, experience: ${user.experienceLevel}`);
+      
       // 2. Find the appropriate AI configuration using rule-based logic
       const aiConfig = await determineAIConfiguration(user);
       
@@ -67,8 +71,11 @@ export const aiPlanGenerationService = {
         return false;
       }
       
+      console.log(`AI configuration determined: ID ${aiConfig.configId}`);
+      
       // 3. Create workout plan
       const workoutPlan = await createWorkoutPlan(user);
+      console.log(`Created workout plan: ${workoutPlan?.name} (ID: ${workoutPlan?.planId})`);
       
       // 4. Create workout sessions based on rule-determined split
       if (workoutPlan && workoutPlan.planId) {
@@ -76,9 +83,11 @@ export const aiPlanGenerationService = {
         
         // 5. Record this plan generation in AI plans history
         await recordPlanGeneration(userId, workoutPlan.planId, user);
+        console.log(`Workout plan generation completed successfully for user ${userId}`);
         return true;
       }
       
+      console.error(`Failed to create workout plan for user ${userId}`);
       return false;
     } catch (error) {
       console.error("Error generating workout plan:", error);
@@ -89,6 +98,8 @@ export const aiPlanGenerationService = {
 
 // Rule-based function to determine the appropriate AI configuration
 async function determineAIConfiguration(user: TSUser): Promise<TSAiConfiguration | undefined> {
+  console.log(`Determining AI configuration for user with goal: ${user.fitnessGoal}, experience: ${user.experienceLevel}`);
+  
   // First try to find an exact match configuration
   const [exactMatch] = await db
     .select()
@@ -102,6 +113,7 @@ async function determineAIConfiguration(user: TSUser): Promise<TSAiConfiguration
     );
   
   if (exactMatch) {
+    console.log(`Found exact match configuration: ID ${exactMatch.configId}`);
     return exactMatch;
   }
   
@@ -118,6 +130,7 @@ async function determineAIConfiguration(user: TSUser): Promise<TSAiConfiguration
     );
   
   if (goalLevelMatch) {
+    console.log(`Found goal and experience level match: ID ${goalLevelMatch.configId}`);
     return goalLevelMatch;
   }
   
@@ -130,6 +143,7 @@ async function determineAIConfiguration(user: TSUser): Promise<TSAiConfiguration
     );
   
   if (goalMatch) {
+    console.log(`Found goal match: ID ${goalMatch.configId}`);
     return goalMatch;
   }
   
@@ -142,6 +156,7 @@ async function determineAIConfiguration(user: TSUser): Promise<TSAiConfiguration
     );
   
   if (defaultConfig) {
+    console.log(`Found default config for experience level: ID ${defaultConfig.configId}`);
     return defaultConfig;
   }
   
@@ -151,11 +166,19 @@ async function determineAIConfiguration(user: TSUser): Promise<TSAiConfiguration
     .from(AiConfigurationTable)
     .limit(1);
   
+  if (anyConfig) {
+    console.log(`Using fallback configuration: ID ${anyConfig.configId}`);
+  } else {
+    console.error("No AI configurations found in the database");
+  }
+  
   return anyConfig;
 }
 
 // Create a workout plan based on user profile
 async function createWorkoutPlan(user: TSUser): Promise<TIWorkoutPlan> {
+  console.log(`Creating workout plan for user: ${user.userId}, goal: ${user.fitnessGoal}`);
+  
   // Rule-based plan naming and description
   let planName = "";
   let planDescription = "";
@@ -206,6 +229,8 @@ async function createWorkoutPlan(user: TSUser): Promise<TIWorkoutPlan> {
     planDescription = `Custom ${formatString(user.fitnessGoal)} plan for ${user.experienceLevel} level`;
   }
   
+  console.log(`Plan name: "${planName}", description: "${planDescription}", duration: ${durationWeeks} weeks`);
+  
   // Create the plan
   const [workoutPlan] = await db
     .insert(WorkoutPlansTable)
@@ -230,17 +255,21 @@ async function createWorkoutSessions(
   aiConfig: TSAiConfiguration, 
   user: TSUser
 ): Promise<void> {
+  console.log(`Creating workout sessions for plan ID: ${planId}`);
+  
   // Get the muscle group split from the config
   const muscleGroupSplit = aiConfig.muscleGroupSplit as Record<string, string>;
+  console.log(`Muscle group split: ${JSON.stringify(muscleGroupSplit)}`);
   
   // For each day in the split configuration
   for (const [day, muscleGroup] of Object.entries(muscleGroupSplit)) {
     const dayNumber = parseInt(day.replace('day', ''));
+    console.log(`Creating session for day ${dayNumber}: ${muscleGroup}`);
     
     // Rule for rest days
     if (muscleGroup === 'rest') {
       // Create a rest day session
-      await db
+      const [restSession] = await db
         .insert(WorkoutSessionsTable)
         .values({
           planId,
@@ -249,7 +278,10 @@ async function createWorkoutSessions(
           description: `Active recovery or complete rest`,
           targetMuscleGroups: "rest",
           duration: 0
-        });
+        })
+        .returning();
+        
+      console.log(`Created rest day session: ${restSession.sessionId}`);
       continue;
     }
     
@@ -286,9 +318,13 @@ async function createWorkoutSessions(
       })
       .returning();
     
+    console.log(`Created workout session: ${session.sessionId}, duration: ${sessionDuration} minutes`);
+    
     // Add exercises to this session
     await addExercisesToSession(session.sessionId, muscleGroup, aiConfig, user);
   }
+  
+  console.log(`Finished creating all workout sessions for plan ID: ${planId}`);
 }
 
 // Rule-based function to determine session description
@@ -331,8 +367,32 @@ async function addExercisesToSession(
   user: TSUser
 ): Promise<void> {
   try {
-    // 1. Get suitable exercises from the exercise library
-    const targetMuscles = muscleGroup.split('_');
+    console.log(`Adding exercises for session ${sessionId}, muscle group: ${muscleGroup}`);
+    
+    // Create a mapping for specialized workout types to traditional muscle groups
+    // This allows us to find appropriate exercises even without specialized tags
+    const specializedWorkoutMap: Record<string, string[]> = {
+      "hiit_strength": ["chest", "back", "legs", "full body"],
+      "cardio_core": ["core", "full body"],
+      "tabata": ["full body", "core", "cardio"],
+      "circuit_training": ["full body", "chest", "back", "legs"],
+      "endurance": ["legs", "full body"],
+      "active_recovery": ["core", "full body"],
+      // Add more mappings as needed
+    };
+    
+    let targetMuscles: string[] = [];
+    
+    // Check if we have a specialized workout type
+    if (muscleGroup in specializedWorkoutMap) {
+      console.log(`Using specialized mapping for ${muscleGroup}`);
+      targetMuscles = specializedWorkoutMap[muscleGroup];
+    } else {
+      // Traditional muscle group splitting
+      targetMuscles = muscleGroup.split('_');
+    }
+    
+    console.log(`Target muscles for ${muscleGroup}: ${targetMuscles.join(', ')}`);
     
     // Query all exercises that match the workout type
     const exercises = await db
@@ -342,16 +402,20 @@ async function addExercisesToSession(
         eq(ExerciseLibraryTable.workoutType, user.preferredWorkoutType)
       );
     
+    console.log(`Found ${exercises.length} exercises matching workout type: ${user.preferredWorkoutType}`);
+    
     // Apply rule-based filtering for suitable exercises
     let suitableExercises: TSExerciseLibrary[] = [];
     
-    // Rule 1: Filter by experience level match
+    // Rule 1: Filter by experience level match AND target muscle groups
     const exactLevelExercises = exercises.filter(ex => 
       ex.difficulty === user.experienceLevel && 
-      targetMuscles.some((muscle: string) => 
+      targetMuscles.some(muscle => 
         ex.targetMuscleGroup.toLowerCase().includes(muscle.toLowerCase())
       )
     );
+    
+    console.log(`Found ${exactLevelExercises.length} exercises matching exact level and target muscles`);
     
     // If we have enough exercises at the exact level, use those
     if (exactLevelExercises.length >= (aiConfig.exerciseCountRange as { min: number; max: number }).min) {
@@ -370,7 +434,7 @@ async function addExercisesToSession(
           (ex.difficulty === user.experienceLevel || 
            ex.difficulty === "beginner" || 
            ex.difficulty === "advanced") && 
-          targetMuscles.some((muscle: string) => 
+          targetMuscles.some(muscle => 
             ex.targetMuscleGroup.toLowerCase().includes(muscle.toLowerCase())
           )
         );
@@ -380,32 +444,98 @@ async function addExercisesToSession(
         suitableExercises = exercises.filter(ex => 
           (ex.difficulty === user.experienceLevel || 
            ex.difficulty === adjacentLevel) && 
-          targetMuscles.some((muscle: string) => 
+          targetMuscles.some(muscle => 
             ex.targetMuscleGroup.toLowerCase().includes(muscle.toLowerCase())
           )
         );
       }
+      
+      console.log(`After relaxing difficulty constraints: ${suitableExercises.length} suitable exercises`);
     }
     
     // Rule 3: If still not enough, use any exercise that targets the muscle groups
     if (suitableExercises.length < (aiConfig.exerciseCountRange as { min: number; max: number }).min) {
+      console.log(`Still not enough exercises, relaxing muscle group constraints...`);
       suitableExercises = exercises.filter(ex => 
-        targetMuscles.some((muscle: string) => 
+        targetMuscles.some(muscle => 
           ex.targetMuscleGroup.toLowerCase().includes(muscle.toLowerCase())
         )
       );
     }
     
+    // Rule 4: For specialized workout types, add specialized exercise selection logic
+    if (suitableExercises.length < (aiConfig.exerciseCountRange as { min: number; max: number }).min) {
+      console.log(`Using specialized selection for ${muscleGroup}...`);
+      
+      if (muscleGroup === "hiit_strength") {
+        // For HIIT, prioritize compound exercises that can be done intensely
+        suitableExercises = exercises.filter(ex => 
+          ["burpees", "squat", "push", "pull", "press", "jump", "mountain climber", "lunge", "plank"].some(
+            term => ex.name.toLowerCase().includes(term)
+          )
+        );
+      } 
+      else if (muscleGroup === "tabata") {
+        // For tabata, use exercises that can be done for very short intense intervals
+        suitableExercises = exercises.filter(ex => 
+          ["jump", "push", "squat", "burpee", "climber", "jack", "sprint", "sit-up", "plank"].some(
+            term => ex.name.toLowerCase().includes(term)
+          )
+        );
+      }
+      else if (muscleGroup === "circuit_training") {
+        // For circuit training, use a variety of full-body exercises
+        suitableExercises = exercises.filter(ex => 
+          ex.equipment === "None" || ex.equipment === "Dumbbells" ||
+          ex.targetMuscleGroup.toLowerCase().includes("full body")
+        );
+      }
+      else if (muscleGroup === "endurance") {
+        // For endurance, focus on exercises that can be sustained
+        suitableExercises = exercises.filter(ex => 
+          ["run", "cycle", "climb", "step", "jump", "squat", "lunge", "press"].some(
+            term => ex.name.toLowerCase().includes(term)
+          )
+        );
+      }
+      else if (muscleGroup === "active_recovery") {
+        // For active recovery, use low-intensity exercises
+        suitableExercises = exercises.filter(ex => 
+          ex.difficulty === "beginner"
+        );
+      }
+      
+      console.log(`After specialized selection: ${suitableExercises.length} suitable exercises`);
+    }
+    
+    // Rule 5: If STILL not enough exercises, use ANY exercises from the database as a last resort
+    if (suitableExercises.length < (aiConfig.exerciseCountRange as { min: number; max: number }).min) {
+      console.log(`Using ANY available exercises as last resort...`);
+      
+      const minExercises = (aiConfig.exerciseCountRange as { min: number; max: number }).min;
+      // First, use what we've already found
+      const additionalNeeded = minExercises - suitableExercises.length;
+      
+      // Get additional random exercises that we haven't already selected
+      const additionalExercises = exercises
+        .filter(ex => !suitableExercises.some(selected => selected.exerciseId === ex.exerciseId))
+        .sort(() => 0.5 - Math.random())
+        .slice(0, additionalNeeded);
+      
+      suitableExercises = [...suitableExercises, ...additionalExercises];
+      
+      console.log(`Final exercise count: ${suitableExercises.length}`);
+    }
+    
     if (suitableExercises.length === 0) {
-      console.warn(`No suitable exercises found for ${muscleGroup}`);
+      console.warn(`No suitable exercises found for ${muscleGroup} even after fallbacks.`);
       return;
     }
     
     // Rule-based exercise selection and ordering
     let selectedExercises: TSExerciseLibrary[] = [];
     
-    // Rule 4: For strength/muscle gain, prioritize compound exercises first
-    // Fix type comparison with string includes check
+    // Rule for strength/muscle gain
     if (user.fitnessGoal === "muscle_gain" || user.fitnessGoal.includes("strength")) {
       // Identify compound exercises
       const compoundTerms = ['squat', 'deadlift', 'press', 'row', 'bench', 'pull-up', 'pullup', 'chin-up', 'chinup', 'dip'];
@@ -440,7 +570,7 @@ async function addExercisesToSession(
       // Combine with compounds first
       selectedExercises = [...selectedCompounds, ...selectedIsolations];
     }
-    // Rule 5: For weight loss, mix exercises for maximum calorie burn
+    // Rule for weight loss
     else if (user.fitnessGoal === "weight_loss") {
       const exerciseCount = getRandomInt(
         (aiConfig.exerciseCountRange as { min: number; max: number }).min + 1, // Add extra exercises for weight loss
@@ -451,7 +581,19 @@ async function addExercisesToSession(
         .sort(() => 0.5 - Math.random())
         .slice(0, Math.min(exerciseCount, suitableExercises.length));
     }
-    // Rule 6: Default selection for other goals
+    // Rule for specialized workout types based on their characteristics
+    else if (["hiit_strength", "tabata", "circuit_training", "endurance", "active_recovery"].includes(muscleGroup)) {
+      // For these specialized types, select more exercises than usual to create variety
+      const exerciseCount = getRandomInt(
+        (aiConfig.exerciseCountRange as { min: number; max: number }).min + 1,
+        (aiConfig.exerciseCountRange as { min: number; max: number }).max + 3
+      );
+      
+      selectedExercises = suitableExercises
+        .sort(() => 0.5 - Math.random())
+        .slice(0, Math.min(exerciseCount, suitableExercises.length));
+    }
+    // Default selection for other goals
     else {
       const exerciseCount = getRandomInt(
         (aiConfig.exerciseCountRange as { min: number; max: number }).min,
@@ -463,22 +605,30 @@ async function addExercisesToSession(
         .slice(0, Math.min(exerciseCount, suitableExercises.length));
     }
     
+    // Enforce a minimum of at least 2 exercises for any workout (except rest days)
+    const minExercises = 2;
+    if (selectedExercises.length < minExercises && muscleGroup !== "rest") {
+      // Just use as many as we have if we can't meet the minimum
+      selectedExercises = suitableExercises.slice(0, Math.min(minExercises, suitableExercises.length));
+    }
+    
+    console.log(`Selected ${selectedExercises.length} exercises for session ${sessionId}`);
+    
     // 4. Add each exercise to the session with rule-determined parameters
     for (let i = 0; i < selectedExercises.length; i++) {
       const exercise = selectedExercises[i];
       
-      // Rule 7: Determine if exercise is compound
+      // Rule: Determine if exercise is compound
       const compoundTerms = ['squat', 'deadlift', 'press', 'row', 'bench', 'pull-up', 'pullup', 'chin-up', 'chinup', 'dip'];
       const isCompound = compoundTerms.some(term => 
         exercise.name.toLowerCase().includes(term)
       );
       
-      // Rule 8: Set rep and set ranges based on goal and exercise type
+      // Rule: Set rep and set ranges based on goal and exercise type
       let sets = 0;
       let reps = 0;
       let restPeriod = 0;
       
-      // Fix comparison with string includes check
       if (user.fitnessGoal.includes("strength")) {
         if (isCompound) {
           sets = getRandomInt(4, 5);
@@ -506,11 +656,36 @@ async function addExercisesToSession(
         reps = getRandomInt(12, 20);
         restPeriod = getRandomInt(30, 60); // 30s-1 minute
       }
-      // Fix comparison with string includes check
       else if (user.fitnessGoal.includes("endurance")) {
         sets = getRandomInt(2, 4);
         reps = getRandomInt(15, 25);
         restPeriod = getRandomInt(30, 45); // 30-45 seconds
+      }
+      // Special handling for workout modalities
+      else if (muscleGroup === "hiit_strength") {
+        sets = getRandomInt(3, 5);
+        reps = getRandomInt(8, 15);
+        restPeriod = getRandomInt(20, 40); // Very short rest for HIIT
+      }
+      else if (muscleGroup === "tabata") {
+        sets = getRandomInt(6, 8); // More sets for tabata style
+        reps = getRandomInt(12, 20); // Higher reps 
+        restPeriod = getRandomInt(10, 20); // Very short rest intervals
+      }
+      else if (muscleGroup === "circuit_training") {
+        sets = getRandomInt(3, 4); // Standard sets for circuit
+        reps = getRandomInt(12, 20); // Higher reps
+        restPeriod = getRandomInt(15, 30); // Minimal rest between exercises
+      }
+      else if (muscleGroup === "endurance") {
+        sets = getRandomInt(2, 4); // Fewer sets
+        reps = getRandomInt(15, 30); // Very high reps for endurance
+        restPeriod = getRandomInt(30, 45); // Short-moderate rest
+      }
+      else if (muscleGroup === "active_recovery") {
+        sets = getRandomInt(2, 3); // Fewer sets for recovery
+        reps = getRandomInt(10, 15); // Moderate reps
+        restPeriod = getRandomInt(30, 60); // Moderate rest
       }
       else {
         // Fallback to configuration ranges
@@ -541,6 +716,8 @@ async function addExercisesToSession(
           restPeriod,
           order: i + 1
         });
+      
+      console.log(`Added exercise: ${exercise.name} (${sets} sets × ${reps} reps, ${restPeriod}s rest)`);
     }
   } catch (error) {
     console.error("Error adding exercises to session:", error);
@@ -553,6 +730,8 @@ async function recordPlanGeneration(
   workoutPlanId: number, 
   user: TSUser
 ): Promise<void> {
+  console.log(`Recording plan generation in history for user ${userId}, plan ${workoutPlanId}`);
+  
   await db
     .insert(AiPlansHistoryTable)
     .values({
@@ -566,4 +745,6 @@ async function recordPlanGeneration(
         weight: user.weight
       })
     });
+    
+  console.log(`Plan generation recorded successfully`);
 }
