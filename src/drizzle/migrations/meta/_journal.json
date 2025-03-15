@@ -15,6 +15,13 @@
       "when": 1730107625845,
       "tag": "0001_talented_stone_men",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1741943948202,
+      "tag": "0002_volatile_justin_hammer",
+      "breakpoints": true
     }
   ]
 }

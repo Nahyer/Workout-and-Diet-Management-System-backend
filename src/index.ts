@@ -19,7 +19,7 @@ import { authRouter } from "./auth/auth.router";
 const app = new Hono();
 
 app.use("*", cors({
-  origin: "*",
+  origin: "http://localhost:3000",
   allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 }));
 
