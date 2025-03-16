@@ -14,6 +14,7 @@ import { workoutLogsRouter } from "./workout-logs/workout-logs.router";
 import { exerciseLogsRouter } from "./exercise-logs/exercise-logs.router";
 import { aiPlansHistoryRouter } from "./ai-plans-history/ai-plans-history.router";
 import { aiConfigurationRouter } from "./ai-configuration/ai-configuration.router";
+import { supportTicketRouter } from "./support-tickets/support-tickets.router";
 import { authRouter } from "./auth/auth.router";
 
 const app = new Hono();
@@ -39,6 +40,7 @@ app.route("/api", workoutLogsRouter);
 app.route("/api", exerciseLogsRouter);
 app.route("/api", aiPlansHistoryRouter);
 app.route("/api", aiConfigurationRouter);
+app.route("/api", supportTicketRouter);
 app.route("/api/auth", authRouter);
 
 

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { userRoleEnum, fitnessGoalEnum, experienceLevelEnum, workoutTypeEnum, activityLevelEnum } from "./drizzle/schema";
+import { userRoleEnum, fitnessGoalEnum, experienceLevelEnum, workoutTypeEnum, activityLevelEnum, ticketStatusEnum } from "./drizzle/schema";
 
 export const userSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -176,4 +176,21 @@ export const registrationSchema = z.object({
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
+});
+
+export const supportTicketSchema = z.object({
+  userId: z.number().positive("User ID is required"),
+  subject: z.string().min(1, "Subject is required").max(255, "Subject is too long"),
+  message: z.string().min(1, "Message is required"),
+  status: z.enum(["new", "open", "in_progress", "resolved", "closed"]).default("new"),
+  adminResponse: z.string().optional(),
+  category: z.string().default("general"),
+});
+
+export const updateTicketSchema = z.object({
+  subject: z.string().min(1, "Subject is required").max(255, "Subject is too long").optional(),
+  message: z.string().min(1, "Message is required").optional(),
+  status: z.enum(["new", "open", "in_progress", "resolved", "closed"]).optional(),
+  adminResponse: z.string().optional(),
+  category: z.string().optional(),
 });
