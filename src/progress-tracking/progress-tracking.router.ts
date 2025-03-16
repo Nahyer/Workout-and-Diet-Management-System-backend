@@ -9,6 +9,8 @@ import {
 } from "./progress-tracking.controller";
 import { zValidator } from "@hono/zod-validator";
 import { progressTrackingSchema } from "../validators";
+import { userRoleAuth } from "../middleware/bearAuth";
+
 
 export const progressTrackingRouter = new Hono();
 
