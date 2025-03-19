@@ -20,6 +20,7 @@ import {
   export const experienceLevelEnum = pgEnum("experience_level", ["beginner", "intermediate", "advanced"]);
   export const workoutTypeEnum = pgEnum("workout_type", ["home", "gym"]);
   export const activityLevelEnum = pgEnum("activity_level", ["sedentary", "lightly_active", "moderately_active", "very_active"]);
+  export const ticketStatusEnum = pgEnum("ticket_status", ["new", "open", "in_progress", "resolved", "closed"]);
   
   // Users Table - Stores user profile and fitness preferences
   export const UsersTable = pgTable("users", {
@@ -214,6 +215,23 @@ export const WorkoutPlansTable = pgTable("workout_plans", {
     repRanges: json("rep_ranges").notNull(), // Recommended rep ranges by goal
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   });
+
+
+  // Support Tickets Table
+export const SupportTicketsTable = pgTable("support_tickets", {
+  ticketId: serial("ticket_id").primaryKey(),
+  userId: integer("user_id")
+    .references(() => UsersTable.userId)
+    .notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  status: ticketStatusEnum("status").default("new").notNull(),
+  adminResponse: text("admin_response"),
+  category: varchar("category", { length: 50 }).default("general").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+});
   
 
   // Relations
@@ -223,6 +241,7 @@ export const usersRelations = relations(UsersTable, ({ many }) => ({
   progressTracking: many(ProgressTrackingTable),
   workoutLogs: many(WorkoutLogsTable),
   aiPlansHistory: many(AiPlansHistoryTable),
+  supportTickets: many(SupportTicketsTable),
 }));
 
 export const progressTrackingRelations = relations(ProgressTrackingTable, ({ one }) => ({
@@ -321,6 +340,15 @@ export const mealPlansRelations = relations(MealPlansTable, ({ one }) => ({
     references: [NutritionPlansTable.nutritionPlanId],
   }),
 }));
+
+// Support Tickets Relations
+export const supportTicketsRelations = relations(SupportTicketsTable, ({ one }) => ({
+  user: one(UsersTable, {
+    fields: [SupportTicketsTable.userId],
+    references: [UsersTable.userId],
+  }),
+}));
+
   
   // Types
   export type TIUser = typeof UsersTable.$inferInsert;
@@ -358,4 +386,7 @@ export const mealPlansRelations = relations(MealPlansTable, ({ one }) => ({
 
   export type TIWorkoutExercise = typeof WorkoutExercisesTable.$inferInsert;
   export type TSWorkoutExercise = typeof WorkoutExercisesTable.$inferSelect;
+
+  export type TISupportTicket = typeof SupportTicketsTable.$inferInsert;
+  export type TSSupportTicket = typeof SupportTicketsTable.$inferSelect;
   

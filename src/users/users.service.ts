@@ -1,6 +1,7 @@
 import db from "../drizzle/db";
 import { UsersTable, ProgressTrackingTable, WorkoutPlansTable, NutritionPlansTable, TIUser } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 type UserWithDetails = {
   userId: number;
@@ -15,6 +16,8 @@ type UserWithDetails = {
   experienceLevel: string;
   preferredWorkoutType: string;
   activityLevel: string;
+  createdAt: Date; // Add this field
+  updatedAt: Date; // Add this field
   progressTracking: {
     date: Date;
     weight: string | null;
@@ -58,6 +61,8 @@ export const userService = {
         experienceLevel: true,
         preferredWorkoutType: true,
         activityLevel: true,
+        createdAt: true, // Add this field
+        updatedAt: true, // Add this field
       },
       with: {
         progressTracking: {
@@ -101,6 +106,8 @@ export const userService = {
     return users.map(user => ({
       ...user,
       dateOfBirth: new Date(user.dateOfBirth), // Convert string to Date
+      createdAt: new Date(user.createdAt), // Convert string to Date
+      updatedAt: new Date(user.updatedAt), // Convert string to Date
       progressTracking: user.progressTracking.map(progress => ({
         date: new Date(progress.date), // Convert string to Date
         weight: progress.weight,
@@ -133,6 +140,8 @@ export const userService = {
         activityLevel: true,
         medicalConditions: true,
         dietaryRestrictions: true,
+        createdAt: true, // Add this field
+        updatedAt: true, // Add this field
       },
       with: {
         progressTracking: {
@@ -160,6 +169,8 @@ export const userService = {
     return {
       ...user,
       dateOfBirth: new Date(user.dateOfBirth), // Convert string to Date
+      createdAt: new Date(user.createdAt), // Convert string to Date
+      updatedAt: new Date(user.updatedAt), // Convert string to Date
       progressTracking: user.progressTracking.map(progress => ({
         date: new Date(progress.date), // Convert string to Date
         weight: progress.weight,
@@ -210,14 +221,30 @@ export const userService = {
     }
   },
 
-
   update: async (id: number, user: Partial<TIUser>): Promise<TIUser | null> => {
-    const [updatedUser] = await db
-      .update(UsersTable)
-      .set({ ...user, updatedAt: new Date() })
-      .where(eq(UsersTable.userId, id))
-      .returning();
-    return updatedUser || null;
+    try {
+      // Check if the update includes a password change
+      if (user.password) {
+        // Hash the password before storing it
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(user.password, saltRounds);
+        
+        // Replace the plaintext password with the hashed one
+        user.password = hashedPassword;
+      }
+
+      // Proceed with the update
+      const [updatedUser] = await db
+        .update(UsersTable)
+        .set({ ...user, updatedAt: new Date() })
+        .where(eq(UsersTable.userId, id))
+        .returning();
+        
+      return updatedUser || null;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw new Error('Failed to update user');
+    }
   },
 
   delete: async (id: number): Promise<boolean> => {
