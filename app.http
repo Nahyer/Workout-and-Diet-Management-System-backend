@@ -40,7 +40,7 @@ GET http://localhost:8000/api/users
 
 ###
 # Get user by ID (admin or self)
-GET http://localhost:8000/api/users/19
+GET http://localhost:8000/api/users/1
 #Authorization: Bearer <user-token>
 
 ###
@@ -49,11 +49,11 @@ POST http://localhost:8000/api/users
 Content-Type: application/json
 
 {
-  "fullName": "Lonnex Ngure",
-  "email": "lonnex@example.com",
-  "password": "securepassword123",
+  "fullName": "Hildah Wambui",
+  "email": "hildahwambui@gmail.com",
+  "password": "hildahwambui",
   "dateOfBirth": "1990-01-01",
-  "gender": "male",
+  "gender": "female",
   "height": 175,
   "weight": 75,
   "fitnessGoal": "muscle_gain",
@@ -66,22 +66,23 @@ Content-Type: application/json
 
 ###
 # Update user (self or admin)
-PUT http://localhost:8000/api/users/19
+PUT http://localhost:8000/api/users/32
 #Authorization: Bearer <user-token>
 Content-Type: application/json
 
 {
-  "fullName": "Nancy Muthoni",
-  "email": "nancymuthoni@gmail.com",
-  "password": "nancy123456",
+  "fullName": "Hildah Wambui",
+  "email": "hildahwambui@gmail.com",
+  "password": "hildahwambui",
   "dateOfBirth": "1990-01-01",
   "gender": "female",
-  "height": 160,
-  "weight": 50,
-  "fitnessGoal": "maintenance",
-  "experienceLevel": "intermediate",
-  "preferredWorkoutType": "gym",
-  "activityLevel": "lightly_active"
+  "height": 140,
+  "weight": 40,
+  "role": "user",
+  "fitnessGoal": "muscle_gain",
+  "experienceLevel": "beginner",
+  "preferredWorkoutType": "home",
+  "activityLevel": "very_active"
 }
 
 ###
