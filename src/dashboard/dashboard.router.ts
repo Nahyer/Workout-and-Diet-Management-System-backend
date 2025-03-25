@@ -1,7 +1,7 @@
 // backend/dashboard/dashboard.router.ts
 import { Hono } from 'hono';
-import { db } from '../drizzle/db'; // Your Drizzle DB connection
-import { eq, and, desc, gte } from 'drizzle-orm';
+import { db } from '../drizzle/db';
+import { eq, and, desc, gte, lte } from 'drizzle-orm';
 import { 
   UsersTable,
   WorkoutSessionsTable,
@@ -9,7 +9,8 @@ import {
   ProgressTrackingTable,
   WorkoutLogsTable,
   MealPlansTable,
-  WorkoutPlansTable // Added missing import
+  WorkoutPlansTable,
+  MealConsumptionLogsTable // Add this import
 } from '../drizzle/schema';
 
 export const dashboardRouter = new Hono();
@@ -61,19 +62,27 @@ dashboardRouter.get('/dashboard/:userId', async (c) => {
       ))
       .limit(1);
 
-    // 4. Calories Today (from MealPlansTable)
-    const todaysMeals = await db
+    // 4. Calories Today (from MealConsumptionLogsTable)
+    const todayStart = new Date(today);
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(today);
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const consumedMeals = await db
       .select({
-        calories: MealPlansTable.calories
+        calories: MealConsumptionLogsTable.calories
       })
-      .from(MealPlansTable)
-      .innerJoin(NutritionPlansTable, eq(MealPlansTable.nutritionPlanId, NutritionPlansTable.nutritionPlanId))
+      .from(MealConsumptionLogsTable)
       .where(and(
-        eq(NutritionPlansTable.userId, userId),
-        eq(MealPlansTable.dayNumber, new Date().getDay())
+        eq(MealConsumptionLogsTable.userId, userId),
+        and(
+          gte(MealConsumptionLogsTable.consumedAt, todayStart),
+          lte(MealConsumptionLogsTable.consumedAt, todayEnd)
+        )
       ));
 
-    const caloriesToday = todaysMeals.reduce((sum, meal) => sum + (meal.calories || 0), 0);
+    const caloriesToday = consumedMeals.reduce((sum, meal) => sum + (meal.calories || 0), 0);
+
     const [nutritionPlan] = await db
       .select({ 
         dailyCalories: NutritionPlansTable.dailyCalories,
@@ -99,9 +108,9 @@ dashboardRouter.get('/dashboard/:userId', async (c) => {
     // 6. Today's Goals (simplified for "Today's Focus" in frontend)
     const goals = {
       calories: nutritionPlan?.dailyCalories || 2200,
-      proteinGrams: nutritionPlan?.proteinGrams || 150, // Example default
-      carbsGrams: nutritionPlan?.carbsGrams || 200,     // Example default
-      fatGrams: nutritionPlan?.fatGrams || 70,          // Example default
+      proteinGrams: nutritionPlan?.proteinGrams || 150,
+      carbsGrams: nutritionPlan?.carbsGrams || 200,
+      fatGrams: nutritionPlan?.fatGrams || 70,
       workoutCompleted: workoutLogs.some(log => 
         log.date.toISOString().split('T')[0] === today && log.completed
       )
