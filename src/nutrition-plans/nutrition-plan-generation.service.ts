@@ -311,7 +311,7 @@ function getMealDistribution(mealsPerDay: number): Record<string, number> {
   }
 }
 
-// Generate specific meal details based on macros and restrictions
+// Generate specific meal details based on macros and restrictions with Kenyan foods
 function generateMealDetails(
   mealTime: string,
   fitnessGoal: string,
@@ -321,187 +321,468 @@ function generateMealDetails(
   fat: number,
   restrictions: string
 ): { name: string; description: string; recipe: string } {
-  // Base meal templates by time
+  // Base meal templates by time with extensive Kenyan foods
   const mealTemplates: Record<string, Array<{ name: string; description: string; recipe: string; }>> = {
     'breakfast': [
       {
-        name: 'High Protein Breakfast Bowl',
-        description: 'Protein-packed breakfast to start your day right',
-        recipe: 'Mix Greek yogurt, protein powder, berries, and nuts. Top with chia seeds and a drizzle of honey.'
+        name: 'Uji Power Breakfast',
+        description: 'Protein-enriched traditional porridge to start your day right',
+        recipe: 'Cook millet or sorghum uji with milk, add a scoop of protein powder, sliced bananas, and a tablespoon of peanut butter or groundnut paste.'
       },
       {
-        name: 'Power Oatmeal',
-        description: 'Complex carbs with added protein for sustained energy',
-        recipe: 'Cook rolled oats with milk, add a scoop of protein powder, banana slices, and a tablespoon of peanut butter.'
+        name: 'Wimbi Porridge Boost',
+        description: 'Finger millet porridge with added protein',
+        recipe: 'Cook wimbi (finger millet) flour with milk, add honey, cinnamon, and a scoop of protein powder. Top with sliced local fruits.'
       },
       {
-        name: 'Veggie Egg Scramble',
-        description: 'Protein-rich eggs with vegetables for micronutrients',
-        recipe: 'Scramble eggs with spinach, tomatoes, and bell peppers. Serve with a slice of whole grain toast.'
+        name: 'Kenyan Egg Dish',
+        description: 'Protein-rich eggs with local vegetables',
+        recipe: 'Scramble eggs with sukuma wiki (kale), tomatoes, and onions. Serve with a slice of Kenyan brown bread or ugali.'
+      },
+      {
+        name: 'Kenyan Farmer\'s Breakfast',
+        description: 'Hearty traditional breakfast with local ingredients',
+        recipe: 'Sweet potatoes, arrow roots, and boiled eggs served with a side of steamed local greens and fermented milk.'
+      },
+      {
+        name: 'Chapati Protein Wrap',
+        description: 'Traditional flatbread with protein filling',
+        recipe: 'Whole grain chapati filled with scrambled eggs, avocado slices, and kachumbari (tomato and onion salad).'
+      },
+      {
+        name: 'Protein Mandazi Breakfast',
+        description: 'Traditional Kenyan pastry with protein accompaniment',
+        recipe: 'Whole grain mandazi served with protein-enriched yogurt and sliced local fruits like mango or pineapple.'
+      },
+      {
+        name: 'Mbaazi za Nyoyo',
+        description: 'Coastal Kenyan pigeon peas breakfast',
+        recipe: 'Cook pigeon peas with coconut milk, serve with a boiled egg and a slice of cassava or sweet potato.'
+      },
+      {
+        name: 'Protein-Packed Mahamri',
+        description: 'Swahili coconut doughnuts with protein boost',
+        recipe: 'Whole grain mahamri served with a protein shake made from milk, local fruits, and protein powder.'
+      },
+      {
+        name: 'Matoke Breakfast Bowl',
+        description: 'Plantain-based breakfast with added protein',
+        recipe: 'Mashed matoke (plantains) topped with scrambled eggs, avocado slices, and a sprinkle of ground nuts.'
+      },
+      {
+        name: 'Arrow Root Breakfast Plate',
+        description: 'Traditional tubers with protein accompaniment',
+        recipe: 'Boiled arrow roots (nduma) and sweet potatoes served with fried eggs and steamed sukuma wiki.'
       }
     ],
     'lunch': [
       {
-        name: 'Lean Protein Bowl',
-        description: 'Balanced meal with lean protein and complex carbs',
-        recipe: 'Grilled chicken breast, brown rice, steamed broccoli, and avocado slices. Season with olive oil and herbs.'
+        name: 'Balanced Ugali Plate',
+        description: 'Traditional staple with lean protein and vegetables',
+        recipe: 'Portion of ugali made from whole maize flour, served with tilapia fish or beef, and a side of sukuma wiki and tomato relish.'
       },
       {
-        name: 'Power Salad',
-        description: 'Nutrient-dense salad with lean protein',
-        recipe: 'Mix spinach, grilled chicken, quinoa, cherry tomatoes, cucumber, and bell peppers. Dress with olive oil and lemon juice.'
+        name: 'Githeri Power Bowl',
+        description: 'Protein-rich traditional beans and maize mixture',
+        recipe: 'Cook githeri (maize and beans) with carrots, onions, and tomatoes. Add diced lean meat like beef or goat for extra protein.'
       },
       {
-        name: 'Whole Grain Wrap',
-        description: 'Portable balanced meal with whole grains',
-        recipe: 'Whole grain wrap filled with turkey breast, hummus, spinach, grated carrots, and a sprinkle of feta cheese.'
+        name: 'Kenyan Pilau',
+        description: 'Aromatic rice dish with added protein',
+        recipe: 'Brown rice pilau cooked with traditional spices, lean beef or chicken, and mixed with peas, carrots, and potatoes.'
+      },
+      {
+        name: 'Matoke with Protein',
+        description: 'Balanced meal with plantains and lean protein',
+        recipe: 'Mashed matoke (plantains) served with grilled tilapia or beef stew and steamed local vegetables like kunde (cowpeas leaves).'
+      },
+      {
+        name: 'Omena Protein Bowl',
+        description: 'Small fish rich in calcium and protein',
+        recipe: 'Omena (small lake fish) stewed with tomatoes and onions, served with a side of brown ugali and steamed managu (African nightshade).'
+      },
+      {
+        name: 'Mokimo Energy Plate',
+        description: 'Traditional mashed potatoes, corn, and beans dish',
+        recipe: 'Mokimo (mashed potatoes, corn, beans, and greens) served with grilled chicken and a side of kachumbari.'
+      },
+      {
+        name: 'Maharagwe ya Nazi',
+        description: 'Coastal bean stew with coconut',
+        recipe: 'Red kidney beans cooked in coconut milk with spices, served with brown rice and a side of steamed vegetables.'
+      },
+      {
+        name: 'Nyama na Irio',
+        description: 'Traditional mashed peas and potatoes with meat',
+        recipe: 'Irio (mashed peas, potatoes, and corn) served with lean grilled meat and sautéed terere (amaranth greens).'
+      },
+      {
+        name: 'Kenyan Fish Curry',
+        description: 'Local fish in aromatic coconut curry',
+        recipe: 'Chunks of fresh tilapia or Nile perch simmered in a curry with coconut milk, tomatoes, and local spices. Served with brown rice or ugali.'
+      },
+      {
+        name: 'Kunde Protein Plate',
+        description: 'Cowpea leaves with added protein',
+        recipe: 'Kunde (cowpea leaves) cooked with onions, tomatoes and served with a portion of baked tilapia or grilled chicken.'
+      },
+      {
+        name: 'Muthokoi Bowl',
+        description: 'Traditional dehulled maize dish with protein',
+        recipe: 'Muthokoi (dehulled maize) cooked with beans, vegetables, and lean meat. Seasoned with local herbs and spices.'
+      },
+      {
+        name: 'Mboga Kienyeji Mix',
+        description: 'Assorted local vegetables with protein',
+        recipe: 'A mix of indigenous vegetables like managu, terere, and saga, sautéed and served with lean beef or chicken and a side of ugali.'
       }
     ],
     'dinner': [
       {
-        name: 'Baked Fish with Vegetables',
-        description: 'Lean protein with fiber-rich vegetables',
-        recipe: 'Bake salmon with lemon, serve with roasted sweet potatoes and steamed asparagus.'
+        name: 'Mukimo with Lean Meat',
+        description: 'Traditional potato and greens mash with protein',
+        recipe: 'Prepare mukimo with potatoes, pumpkin leaves, and corn. Serve with grilled lean beef or chicken and a side of fermented milk (mursik).'
       },
       {
-        name: 'Lean Stir Fry',
-        description: 'High protein stir fry with plenty of vegetables',
-        recipe: 'Stir fry lean beef strips with broccoli, snap peas, bell peppers, and carrots. Serve over brown rice or quinoa.'
+        name: 'Kenyan Fish Stew',
+        description: 'Protein-rich fish dish with vegetables',
+        recipe: 'Simmer tilapia, Nile perch, or omena with tomatoes, onions, and dhania (coriander). Serve with a small portion of brown rice or sweet potatoes.'
       },
       {
-        name: 'Hearty Protein Bowl',
-        description: 'Complete meal with balanced macronutrients',
-        recipe: 'Combine grilled chicken, black beans, brown rice, roasted vegetables, avocado, and a dollop of Greek yogurt.'
+        name: 'Lean Nyama Choma Plate',
+        description: 'Traditional grilled meat with balanced sides',
+        recipe: 'Grilled lean beef, goat, or chicken with reduced oil. Serve with kachumbari (tomato and onion salad) and a small portion of ugali or whole grain rice.'
+      },
+      {
+        name: 'Vegetable Irio',
+        description: 'Traditional mashed peas, potatoes, and corn with added protein',
+        recipe: 'Prepare irio with potatoes, peas, corn, and spinach. Serve with grilled chicken breast or fish and a side of sliced avocado.'
+      },
+      {
+        name: 'Kamande Stew',
+        description: 'Lentil-based stew with local vegetables',
+        recipe: 'Cook kamande (lentils) with onions, tomatoes, and local herbs. Serve with lean beef or chicken and a side of steamed rice.'
+      },
+      {
+        name: 'Kienyeji Chicken Stew',
+        description: 'Free-range chicken with local vegetables',
+        recipe: 'Slow-cooked kienyeji (free-range) chicken with tomatoes, onions, and local herbs. Serve with a small portion of ugali and steamed sukuma wiki.'
+      },
+      {
+        name: 'Kenyan Coconut Fish',
+        description: 'Coastal-style fish with coconut',
+        recipe: 'Tilapia or Nile perch cooked in coconut milk with lime juice, onions, tomatoes, and dhania. Serve with brown rice or cassava.'
+      },
+      {
+        name: 'Lean Mbuzi Plate',
+        description: 'Goat meat with balanced sides',
+        recipe: 'Slow-cooked lean goat meat with onions, tomatoes, and local herbs. Serve with a small portion of ugali and steamed indigenous vegetables.'
+      },
+      {
+        name: 'Mchuzi wa Samaki',
+        description: 'Traditional fish curry',
+        recipe: 'Fresh fish simmered in a light curry with tomatoes, onions, and local spices. Serve with a side of brown rice and steamed vegetables.'
+      },
+      {
+        name: 'Kenyan Vegetable Coconut Curry',
+        description: 'Plant-based curry rich in local vegetables',
+        recipe: 'Mix of local vegetables like cabbage, carrots, and sweet potatoes cooked in coconut milk with aromatic spices. Serve with brown rice or ugali.'
+      },
+      {
+        name: 'Terere with Grilled Chicken',
+        description: 'Amaranth greens with lean protein',
+        recipe: 'Terere (amaranth greens) cooked with onions, tomatoes, and seasoned with local herbs. Served with grilled chicken breast and a small portion of ugali.'
+      },
+      {
+        name: 'Ngwaci na Nyama',
+        description: 'Sweet potato and meat combo',
+        recipe: 'Roasted sweet potatoes served with lean grilled meat and a side of steamed sukuma wiki or cabbage.'
       }
     ],
     'snack': [
       {
-        name: 'Protein Smoothie',
-        description: 'Quick protein boost',
-        recipe: 'Blend protein powder, banana, spinach, almond milk, and a tablespoon of almond butter.'
+        name: 'Protein Mabuyu',
+        description: 'Traditional baobab seed snack with added protein',
+        recipe: 'Mix mabuyu (baobab seeds) with a small amount of honey and a scoop of protein powder.'
       },
       {
-        name: 'Greek Yogurt Parfait',
-        description: 'Protein-rich snack with healthy carbs',
-        recipe: 'Layer Greek yogurt with berries and a sprinkle of granola.'
+        name: 'Roasted Groundnuts Mix',
+        description: 'Protein-rich traditional snack',
+        recipe: 'Mix roasted groundnuts (peanuts) with a small amount of pumpkin seeds and dried fruits like local bananas.'
       },
       {
-        name: 'Protein Energy Bites',
-        description: 'Portable balanced snack',
-        recipe: 'Mix oats, protein powder, peanut butter, honey, and mini chocolate chips. Roll into balls and refrigerate.'
+        name: 'Kenyan Fruit Platter',
+        description: 'Fresh local fruits with yogurt',
+        recipe: 'Plate of sliced pawpaw (papaya), mango, pineapple, passion fruit, sugar cane, guava, and tree tomato with a side of yogurt for dipping.'
+      },
+      {
+        name: 'Mkate Protein Bites',
+        description: 'Kenyan-inspired whole grain protein snack',
+        recipe: 'Small bites made from whole grain flour, protein powder, honey, and ground nuts. Bake until firm.'
+      },
+      {
+        name: 'Njugu Karanga',
+        description: 'Traditional roasted peanuts',
+        recipe: 'Roasted peanuts seasoned with a touch of salt and chili powder. Pair with a small piece of fresh fruit.'
+      },
+      {
+        name: 'Ukwaju Protein Shake',
+        description: 'Tamarind-based protein drink',
+        recipe: 'Blend tamarind pulp with water, honey, protein powder, and ice for a refreshing, protein-rich drink.'
+      },
+      {
+        name: 'Arrowroot Protein Snack',
+        description: 'Traditional tuber with protein dip',
+        recipe: 'Boiled arrow root slices served with a dip made from Greek yogurt, protein powder, and a touch of honey.'
+      },
+      {
+        name: 'Wimbi Protein Balls',
+        description: 'Finger millet energy bites',
+        recipe: 'Balls made from finger millet flour, protein powder, honey, nut butter, and a sprinkle of simsim (sesame seeds).'
+      },
+      {
+        name: 'Madafu Protein Drink',
+        description: 'Coconut water with added protein',
+        recipe: 'Fresh coconut water mixed with a scoop of protein powder and a squeeze of lime juice.'
+      },
+      {
+        name: 'Kenyan Roasted Corn',
+        description: 'Traditional street food with protein',
+        recipe: 'Roasted corn cob seasoned with lime and chili powder. Serve with a protein-rich dip or a small portion of roasted meat.'
       }
     ],
     'morning_snack': [
       {
-        name: 'Fruit and Nuts',
-        description: 'Simple energizing snack',
-        recipe: 'An apple with a small handful of almonds.'
+        name: 'Arrow Root with Protein',
+        description: 'Traditional nduma (arrow root) with protein dip',
+        recipe: 'Boiled arrow root pieces served with a dip made from yogurt, protein powder, and a touch of honey.'
       },
       {
-        name: 'Protein Bar',
-        description: 'Convenient protein source',
-        recipe: 'Homemade protein bar with oats, protein powder, honey, and dried fruits.'
+        name: 'Kenyan Mixed Nuts',
+        description: 'Energy-boosting local nut mix',
+        recipe: 'Mix of groundnuts, pumpkin seeds, simsim (sesame seeds), and a few dried fruits like local bananas or tree tomato.'
+      },
+      {
+        name: 'Sweet Potato Protein Bites',
+        description: 'Local sweet potato energy snack',
+        recipe: 'Roasted sweet potato cubes with a light sprinkle of cinnamon and a tablespoon of peanut butter.'
+      },
+      {
+        name: 'Ukwaju (Tamarind) Refresher',
+        description: 'Traditional tamarind drink with protein',
+        recipe: 'Tamarind juice mixed with a scoop of protein powder and a touch of honey. Serve chilled.'
+      },
+      {
+        name: 'Maziwa Mala Cup',
+        description: 'Traditional fermented milk snack',
+        recipe: 'A cup of mala (fermented milk) with a drizzle of honey and a handful of mixed nuts.'
+      },
+      {
+        name: 'Protein-Packed Kabaazi',
+        description: 'Traditional cassava snack with protein',
+        recipe: 'Strips of boiled cassava served with a dip made from yogurt, protein powder, and herbs.'
+      },
+      {
+        name: 'Tropical Fruit Skewers',
+        description: 'Local fruits with protein dip',
+        recipe: 'Skewers of mango, pineapple, and papaya chunks served with a protein-rich yogurt dip.'
+      },
+      {
+        name: 'Simsim Protein Brittle',
+        description: 'Traditional sesame snack with protein',
+        recipe: 'Sesame seed brittle made with protein powder, honey, and a touch of cinnamon.'
       }
     ],
     'afternoon_snack': [
       {
-        name: 'Vegetable Sticks with Hummus',
-        description: 'Crunchy low-calorie snack with protein',
-        recipe: 'Carrot, celery, and bell pepper sticks with 2 tablespoons of hummus.'
+        name: 'Boiled Maize and Beans',
+        description: 'Traditional nutritious snack',
+        recipe: 'Boiled maize and beans (mũkande) seasoned with a pinch of salt and chili powder for flavor.'
       },
       {
-        name: 'Cottage Cheese with Fruit',
-        description: 'Protein-rich snack with natural sugars',
-        recipe: 'Cottage cheese topped with pineapple chunks or berries.'
+        name: 'Kachumbari Vegetable Sticks',
+        description: 'Fresh vegetable sticks with a protein dip',
+        recipe: 'Carrot, cucumber, and bell pepper sticks with 2 tablespoons of homemade lentil or bean dip.'
+      },
+      {
+        name: 'Terere and Yogurt',
+        description: 'Local greens with protein',
+        recipe: 'Blanched terere (amaranth greens) mixed with plain yogurt and a sprinkle of ground nuts.'
+      },
+      {
+        name: 'Fried Arrowroot Chips',
+        description: 'Healthy version of traditional snack',
+        recipe: 'Thinly sliced arrowroot, lightly fried or baked with minimal oil, seasoned with herbs. Serve with a protein dip.'
+      },
+      {
+        name: 'Masala Chai Protein Shake',
+        description: 'Traditional spiced tea with protein',
+        recipe: 'Kenyan masala tea mixed with milk, protein powder, and a touch of honey.'
+      },
+      {
+        name: 'Roasted Simsim and Groundnuts',
+        description: 'Traditional seed and nut mix',
+        recipe: 'Roasted sesame seeds and groundnuts mixed with a small amount of dried fruits for energy.'
+      },
+      {
+        name: 'Matunda Plate',
+        description: 'Seasonal fruit plate with protein',
+        recipe: 'Selection of sliced local fruits (like passion fruit, mango, sugar cane, guava) with a side of Greek yogurt.'
+      },
+      {
+        name: 'Mahindi ya Kuchoma',
+        description: 'Roasted corn snack with protein',
+        recipe: 'Freshly roasted corn on the cob served with a protein-rich side like boiled eggs or yogurt.'
+      },
+      {
+        name: 'Viazi Karai Bites',
+        description: 'Healthier version of potato snack',
+        recipe: 'Baked potato cubes seasoned with Kenyan spices, served with a protein-rich kachumbari dip.'
+      },
+      {
+        name: 'Ndizi na Nyama',
+        description: 'Banana and meat snack',
+        recipe: 'Roasted green banana slices with a small portion of leftover grilled lean meat.'
       }
     ],
     'evening_snack': [
       {
-        name: 'Casein Protein Shake',
-        description: 'Slow-digesting protein for overnight recovery',
-        recipe: 'Mix casein protein powder with almond milk and a teaspoon of almond butter.'
+        name: 'Mala (Fermented Milk)',
+        description: 'Traditional fermented milk with probiotic benefits',
+        recipe: 'A cup of mala (fermented milk) with a teaspoon of honey and a handful of mixed nuts.'
       },
       {
-        name: 'Greek Yogurt with Honey',
-        description: 'Light protein-rich snack',
-        recipe: 'Greek yogurt with a teaspoon of honey and a sprinkle of cinnamon.'
+        name: 'Protein Uji',
+        description: 'Light protein-rich porridge',
+        recipe: 'Small portion of millet or sorghum uji mixed with protein powder and a sprinkle of ground nuts.'
+      },
+      {
+        name: 'Cassava Crisps with Egg',
+        description: 'Baked cassava with protein',
+        recipe: 'Baked cassava crisps with a small boiled egg on the side.'
+      },
+      {
+        name: 'Mursik Protein Mix',
+        description: 'Traditional fermented milk with protein boost',
+        recipe: 'Small cup of mursik (traditional fermented milk) mixed with a scoop of protein powder.'
+      },
+      {
+        name: 'Sweet Potato Toast',
+        description: 'Local alternative to bread toast',
+        recipe: 'Sliced and toasted sweet potato topped with avocado and a sprinkle of chia seeds.'
+      },
+      {
+        name: 'Kunde Wrap',
+        description: 'Local greens protein wrap',
+        recipe: 'Blanched kunde (cowpea leaves) wrapped around sliced boiled egg and avocado.'
+      },
+      {
+        name: 'Njugu Karanga Mix',
+        description: 'Traditional mixed nuts evening snack',
+        recipe: 'A mix of roasted groundnuts, pumpkin seeds, and dried fruits like banana chips.'
+      },
+      {
+        name: 'Kitumbua Protein Bites',
+        description: 'Rice-based coastal snack with protein',
+        recipe: 'Small kitumbua (rice cakes) served with a protein-rich coconut dip.'
+      },
+      {
+        name: 'Chai ya Tangawizi Protein',
+        description: 'Ginger tea with protein',
+        recipe: 'Traditional Kenyan ginger tea mixed with milk and a scoop of protein powder.'
+      },
+      {
+        name: 'Maharagwe Dip with Vegetables',
+        description: 'Bean-based protein dip',
+        recipe: 'Mashed kidney beans seasoned with local herbs and spices, served with vegetable sticks.'
       }
     ]
   };
+
+ // Default to snack if the meal time isn't specifically defined
+ const availableMeals = mealTemplates[mealTime] || mealTemplates['snack'];
   
-  // Default to snack if the meal time isn't specifically defined
-  const availableMeals = mealTemplates[mealTime] || mealTemplates['snack'];
-  
-  // Randomly select a meal template
-  const mealIndex = getRandomInt(0, availableMeals.length - 1);
-  const selectedMeal = availableMeals[mealIndex];
-  
-  // Adjust for dietary restrictions
-  let adjustedMeal = { ...selectedMeal };
-  
-  if (restrictions && restrictions.toLowerCase() !== 'none') {
-    // Handle common dietary restrictions
-    if (restrictions.toLowerCase().includes('vegetarian')) {
-      adjustedMeal.name = `Vegetarian ${adjustedMeal.name}`;
-      adjustedMeal.recipe = adjustedMeal.recipe.replace(/chicken|beef|turkey|fish|salmon/, 'tofu or tempeh');
-    }
-    
-    if (restrictions.toLowerCase().includes('vegan')) {
-      adjustedMeal.name = `Vegan ${adjustedMeal.name}`;
-      adjustedMeal.recipe = adjustedMeal.recipe
-        .replace(/chicken|beef|turkey|fish|salmon/, 'tofu or tempeh')
-        .replace(/greek yogurt|yogurt/, 'coconut yogurt')
-        .replace(/milk/, 'almond milk')
-        .replace(/cheese/, 'nutritional yeast');
-    }
-    
-    if (restrictions.toLowerCase().includes('gluten')) {
-      adjustedMeal.name = `Gluten-Free ${adjustedMeal.name}`;
-      adjustedMeal.recipe = adjustedMeal.recipe
-        .replace(/whole grain bread|bread/, 'gluten-free bread')
-        .replace(/whole grain wrap|wrap/, 'gluten-free wrap')
-        .replace(/oats/, 'gluten-free oats');
-    }
-    
-    if (restrictions.toLowerCase().includes('lactose') || restrictions.toLowerCase().includes('dairy')) {
-      adjustedMeal.name = `Dairy-Free ${adjustedMeal.name}`;
-      adjustedMeal.recipe = adjustedMeal.recipe
-        .replace(/greek yogurt|yogurt/, 'coconut yogurt')
-        .replace(/milk/, 'almond milk')
-        .replace(/cheese/, 'dairy-free cheese');
-    }
-  }
-  
-  // Customize based on fitness goal
-  if (fitnessGoal === 'weight_loss') {
-    adjustedMeal.description = `${adjustedMeal.description} - Calorie-controlled for weight management.`;
-  } else if (fitnessGoal === 'muscle_gain') {
-    adjustedMeal.description = `${adjustedMeal.description} - Protein-rich to support muscle growth.`;
-  } else if (fitnessGoal.includes('strength')) {
-    adjustedMeal.description = `${adjustedMeal.description} - Balanced nutrition for strength development.`;
-  } else if (fitnessGoal.includes('endurance')) {
-    adjustedMeal.description = `${adjustedMeal.description} - Carb-focused for endurance training.`;
-  }
-  
-  // Add macronutrient information to the description
-  adjustedMeal.description = `${adjustedMeal.description} Contains approximately ${calories} calories, ${protein}g protein, ${carbs}g carbs, and ${fat}g fat.`;
-  
-  return adjustedMeal;
+ // Randomly select a meal template
+ const mealIndex = getRandomInt(0, availableMeals.length - 1);
+ const selectedMeal = availableMeals[mealIndex];
+ 
+ // Adjust for dietary restrictions
+ let adjustedMeal = { ...selectedMeal };
+ 
+ if (restrictions && restrictions.toLowerCase() !== 'none') {
+   // Handle common dietary restrictions
+   if (restrictions.toLowerCase().includes('vegetarian')) {
+     adjustedMeal.name = `Vegetarian ${adjustedMeal.name}`;
+     adjustedMeal.recipe = adjustedMeal.recipe
+       .replace(/beef|goat|chicken|fish|tilapia|perch|omena|nyama choma|mbuzi|kienyeji chicken|samaki/, 'plant-based proteins like beans, lentils, njahi (black beans), ndengu (green grams), or kunde (cowpeas)');
+   }
+   
+   if (restrictions.toLowerCase().includes('vegan')) {
+     adjustedMeal.name = `Vegan ${adjustedMeal.name}`;
+     adjustedMeal.recipe = adjustedMeal.recipe
+       .replace(/beef|goat|chicken|fish|tilapia|perch|omena|nyama choma|mbuzi|kienyeji chicken|samaki/, 'plant-based proteins like beans, lentils, njahi (black beans), ndengu (green grams), or kunde (cowpeas)')
+       .replace(/yogurt|mala|fermented milk|mursik/, 'coconut yogurt or fermented plant milk')
+       .replace(/milk/, 'plant milk like coconut milk, soy milk, or uji without milk')
+       .replace(/egg/, 'scrambled tofu or mashed beans');
+   }
+   
+   if (restrictions.toLowerCase().includes('gluten')) {
+     adjustedMeal.name = `Gluten-Free ${adjustedMeal.name}`;
+     adjustedMeal.recipe = adjustedMeal.recipe
+       .replace(/brown bread|bread/, 'gluten-free cassava bread or rice cake')
+       .replace(/whole grain mandazi/, 'gluten-free mandazi made with cassava or sorghum flour')
+       .replace(/whole grain flour/, 'gluten-free alternatives like cassava, sorghum, or millet flour')
+       .replace(/chapati/, 'gluten-free chapati made with cassava or millet flour')
+       .replace(/mahamri/, 'gluten-free mahamri made with cassava or rice flour')
+       .replace(/wheat/, 'gluten-free flour alternatives like cassava, millet, or sorghum');
+   }
+   
+   if (restrictions.toLowerCase().includes('lactose') || restrictions.toLowerCase().includes('dairy')) {
+     adjustedMeal.name = `Dairy-Free ${adjustedMeal.name}`;
+     adjustedMeal.recipe = adjustedMeal.recipe
+       .replace(/yogurt|mala|fermented milk|mursik/, 'coconut yogurt or fermented plant-based alternatives')
+       .replace(/milk/, 'coconut milk, soy milk, or other plant-based milk');
+   }
+   
+   // Additional common Kenyan dietary restrictions
+   if (restrictions.toLowerCase().includes('nuts') || restrictions.toLowerCase().includes('peanut')) {
+     adjustedMeal.name = `Nut-Free ${adjustedMeal.name}`;
+     adjustedMeal.recipe = adjustedMeal.recipe
+       .replace(/groundnuts|njugu karanga|peanut|peanuts|nut butter/, 'sunflower seeds or roasted pumpkin seeds')
+       .replace(/mixed nuts/, 'mixed seeds like pumpkin, sunflower, and chia seeds');
+   }
+ }
+ 
+ // Customize based on fitness goal
+ if (fitnessGoal === 'weight_loss') {
+   adjustedMeal.description = `${adjustedMeal.description} - Calorie-controlled for weight management.`;
+ } else if (fitnessGoal === 'muscle_gain') {
+   adjustedMeal.description = `${adjustedMeal.description} - Protein-rich to support muscle growth.`;
+ } else if (fitnessGoal.includes('strength')) {
+   adjustedMeal.description = `${adjustedMeal.description} - Balanced nutrition for strength development.`;
+ } else if (fitnessGoal.includes('endurance')) {
+   adjustedMeal.description = `${adjustedMeal.description} - Carb-focused for endurance training.`;
+ }
+ 
+ // Add macronutrient information to the description
+ adjustedMeal.description = `${adjustedMeal.description} Contains approximately ${calories} calories, ${protein}g protein, ${carbs}g carbs, and ${fat}g fat.`;
+ 
+ return adjustedMeal;
 }
 
 // Record nutrition plan generation in history
 async function recordNutritionPlanGeneration(
-  userId: number, 
-  nutritionPlanId: number
+ userId: number, 
+ nutritionPlanId: number
 ): Promise<void> {
-  await db
-    .insert(AiPlansHistoryTable)
-    .values({
-      userId,
-      nutritionPlanId,
-      userInputs: JSON.stringify({
-        timestamp: new Date().toISOString(),
-        type: 'nutrition_plan'
-      })
-    });
+ await db
+   .insert(AiPlansHistoryTable)
+   .values({
+     userId,
+     nutritionPlanId,
+     userInputs: JSON.stringify({
+       timestamp: new Date().toISOString(),
+       type: 'nutrition_plan'
+     })
+   });
 }
