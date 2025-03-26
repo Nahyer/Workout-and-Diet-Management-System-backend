@@ -19,21 +19,17 @@ dashboardRouter.get("/dashboard/:userId", async (c) => {
   const userId = parseInt(c.req.param("userId"));
 
   try {
-    // 1. User Data including streak
     const [user] = await db
       .select({
         fullName: UsersTable.fullName,
-        loginStreak: UsersTable.loginStreak, // Fetch the pre-calculated streak
+        loginStreak: UsersTable.loginStreak,
       })
       .from(UsersTable)
       .where(eq(UsersTable.userId, userId))
       .limit(1);
 
-    if (!user) {
-      return c.json({ error: "User not found" }, 404);
-    }
+    if (!user) return c.json({ error: "User not found" }, 404);
 
-    // 2. Today's Workout (unchanged)
     const today = new Date().toISOString().split("T")[0];
     const [todaysWorkout] = await db
       .select({
@@ -45,7 +41,8 @@ dashboardRouter.get("/dashboard/:userId", async (c) => {
       .from(WorkoutSessionsTable)
       .innerJoin(
         WorkoutPlansTable,
-        eq(WorkoutSessionsTable.planId, WorkoutPlansTable.planId)     )
+        eq(WorkoutSessionsTable.planId, WorkoutPlansTable.planId)
+      )
       .where(
         and(
           eq(WorkoutPlansTable.userId, userId),
@@ -54,7 +51,6 @@ dashboardRouter.get("/dashboard/:userId", async (c) => {
       )
       .limit(1);
 
-    // 3. Calories Today (unchanged)
     const todayStart = new Date(today);
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date(today);
@@ -91,7 +87,6 @@ dashboardRouter.get("/dashboard/:userId", async (c) => {
       .where(eq(NutritionPlansTable.userId, userId))
       .limit(1);
 
-    // 4. Weight Progress (unchanged)
     const weightData = await db
       .select({
         date: ProgressTrackingTable.date,
@@ -102,7 +97,6 @@ dashboardRouter.get("/dashboard/:userId", async (c) => {
       .orderBy(desc(ProgressTrackingTable.date))
       .limit(7);
 
-    // 5. Today's Goals (unchanged)
     const workoutLogs = await db
       .select({
         date: WorkoutLogsTable.date,
@@ -119,22 +113,18 @@ dashboardRouter.get("/dashboard/:userId", async (c) => {
       carbsGrams: nutritionPlan?.carbsGrams || 200,
       fatGrams: nutritionPlan?.fatGrams || 70,
       workoutCompleted: workoutLogs.some(
-        (log) =>
-          log.date.toISOString().split("T")[0] === today && log.completed
+        (log) => log.date.toISOString().split("T")[0] === today && log.completed
       ),
     };
 
-    // Return the response with the streak from UsersTable
     return c.json({
-      user: {
-        fullName: user.fullName,
-      },
-      streak: user.loginStreak || 0, // Use the stored login streak
+      user: { fullName: user.fullName },
+      streak: user.loginStreak || 0,
       todaysWorkout: todaysWorkout || null,
       caloriesToday,
       weightData: weightData.map((w) => ({
-        name: new Date(w.date).toLocaleString("en-us", { weekday: "short" }),
-        value: parseFloat(w.weight || "0"),
+        date: w.date.split("T")[0], // Full "YYYY-MM-DD"
+        weight: parseFloat(w.weight || "0"),
       })),
       goals,
     });
