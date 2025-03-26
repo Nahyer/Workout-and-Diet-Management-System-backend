@@ -41,6 +41,8 @@ import {
     dietaryRestrictions: text("dietary_restrictions"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    lastLogin: timestamp('last_login'), // Store the last login date/time
+    loginStreak: integer('login_streak').default(0),
   });
   
   // Exercise Library Table - Database of all available exercises
