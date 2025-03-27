@@ -3,20 +3,20 @@ POST http://localhost:8000/api/auth/register
 Content-Type: application/json
 
 {
-  "fullName": "Lonnex Waithaka",
-  "email": "lonnexwaithaka@gmail.com",
-  "password": "lonnex123456789",
-  "dateOfBirth": "1990-01-01",
+  "fullName": "Moses Mwabe",
+  "email": "mosesmwabe@gmail.com",
+  "password": "MOSESMWABE",
+  "dateOfBirth": "2002-10-12",
   "gender": "male",
-  "height": 175.5,
-  "weight": 70.5,
-  "role": "admin",
+  "height": 150,
+  "weight": 80,
+  "role": "user",
   "fitnessGoal": "weight_loss",
   "experienceLevel": "beginner",
   "preferredWorkoutType": "home",
-  "activityLevel": "moderately_active",
-  "medicalConditions": "None",
-  "dietaryRestrictions": "Lactose intolerant"
+  "activityLevel": "sedentary",
+  "medicalConditions": "none",
+  "dietaryRestrictions": "milk allergy"
 }
 
 ###
@@ -25,8 +25,8 @@ POST http://localhost:8000/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "lonnexwaithaka@gmail.com",
-  "password": "lonnex123456789"
+  "email": "nancymuthoni@gmail.com",
+  "password": "nancy123456"
 }
 
 
@@ -40,7 +40,7 @@ GET http://localhost:8000/api/users
 
 ###
 # Get user by ID (admin or self)
-GET http://localhost:8000/api/users/2
+GET http://localhost:8000/api/users/1
 #Authorization: Bearer <user-token>
 
 ###
@@ -49,11 +49,11 @@ POST http://localhost:8000/api/users
 Content-Type: application/json
 
 {
-  "fullName": "Lonnex Ngure",
-  "email": "lonnex@example.com",
-  "password": "securepassword123",
+  "fullName": "Hildah Wambui",
+  "email": "hildahwambui@gmail.com",
+  "password": "hildahwambui",
   "dateOfBirth": "1990-01-01",
-  "gender": "male",
+  "gender": "female",
   "height": 175,
   "weight": 75,
   "fitnessGoal": "muscle_gain",
@@ -66,22 +66,23 @@ Content-Type: application/json
 
 ###
 # Update user (self or admin)
-PUT http://localhost:8000/api/users/5
+PUT http://localhost:8000/api/users/32
 #Authorization: Bearer <user-token>
 Content-Type: application/json
 
 {
-  "fullName": "Lonnex Ngure",
-  "email": "lonnex@example.com",
-  "password": "StrongPassword123",
+  "fullName": "Hildah Wambui",
+  "email": "hildahwambui@gmail.com",
+  "password": "hildahwambui",
   "dateOfBirth": "1990-01-01",
-  "gender": "male",
-  "height": 180,
-  "weight": 50,
-  "fitnessGoal": "maintenance",
-  "experienceLevel": "intermediate",
-  "preferredWorkoutType": "gym",
-  "activityLevel": "very active"
+  "gender": "female",
+  "height": 140,
+  "weight": 40,
+  "role": "user",
+  "fitnessGoal": "muscle_gain",
+  "experienceLevel": "beginner",
+  "preferredWorkoutType": "home",
+  "activityLevel": "very_active"
 }
 
 ###
@@ -143,7 +144,7 @@ DELETE http://localhost:8000/api/exercises/1
 //workout plans
 ###
 # Get all workout plans for a user
-GET http://localhost:8000/api/workout-plans/1
+GET http://localhost:8000/api/workout-plans/24
 
 ###
 # Get a workout plan by ID
@@ -285,7 +286,7 @@ GET http://localhost:8000/api/nutrition-plans
 
 ###
 # Get nutrition plans for a specific user
-GET http://localhost:8000/api/nutrition-plans?userId=1
+GET http://localhost:8000/api/nutrition-plans?userId=24
 
 ###
 # Get nutrition plan by ID
@@ -687,3 +688,68 @@ Content-Type: application/json
 ###
 # Delete AI configuration
 DELETE http://localhost:8000/api/ai-configurations/22
+
+
+
+//Support Tickets
+
+### Get all support tickets (admin)
+GET http://localhost:8000/api/support-tickets
+#Authorization: Bearer <admin-token>
+
+### Get tickets by status (admin)
+GET http://localhost:8000/api/support-tickets/status/new
+#Authorization: Bearer <admin-token>
+
+### Get user's tickets
+GET http://localhost:8000/api/users/1/support-tickets
+#Authorization: Bearer <user-token>
+
+### Get specific ticket (updates from 'new' to 'open' if viewed by admin)
+GET http://localhost:8000/api/support-tickets/1
+#Authorization: Bearer <token>
+
+### Create a new support ticket
+POST http://localhost:8000/api/support-tickets
+Content-Type: application/json
+#Authorization: Bearer <user-token>
+
+{
+  "userId": 24,
+  "subject": "Issue with workout plan",
+  "message": "I'm having trouble accessing my workout plan. Could you please help?",
+  "category": "workout"
+}
+
+### Update a ticket (change status)
+PUT http://localhost:8000/api/support-tickets/1
+Content-Type: application/json
+#Authorization: Bearer <admin-token>
+
+{
+  "status": "in_progress",
+  "adminResponse": "We're looking into this issue and will get back to you soon."
+}
+
+### Mark a ticket as resolved
+PUT http://localhost:8000/api/support-tickets/1
+Content-Type: application/json
+#Authorization: Bearer <admin-token>
+
+{
+  "status": "resolved",
+  "adminResponse": "This issue has been resolved. Your workout plan should be accessible now."
+}
+
+### Close a ticket
+PUT http://localhost:8000/api/support-tickets/1
+Content-Type: application/json
+#Authorization: Bearer <admin-token>
+
+{
+  "status": "closed"
+}
+
+### Delete a ticket (admin)
+DELETE http://localhost:8000/api/support-tickets/1
+#Authorization: Bearer <admin-token>
