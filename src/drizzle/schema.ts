@@ -41,6 +41,8 @@ import {
     dietaryRestrictions: text("dietary_restrictions"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    lastLogin: timestamp('last_login'), // Store the last login date/time
+    loginStreak: integer('login_streak').default(0),
   });
   
   // Exercise Library Table - Database of all available exercises
@@ -349,6 +351,35 @@ export const supportTicketsRelations = relations(SupportTicketsTable, ({ one }) 
   }),
 }));
 
+// MealConsumptionLog
+export const MealConsumptionLogsTable = pgTable("meal_consumption_logs", {
+  consumptionId: serial("consumption_id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => UsersTable.userId),
+  mealPlanId: integer("meal_plan_id")
+    .notNull()
+    .references(() => MealPlansTable.mealPlanId),
+  consumedAt: timestamp("consumed_at").notNull().defaultNow(),
+  calories: integer("calories").notNull(), // Store calories at the time of consumption
+  protein: integer("protein").notNull(),
+  carbs: integer("carbs").notNull(),
+  fat: integer("fat").notNull(),
+});
+
+// MealConsumptionLogs relations
+export const mealConsumptionLogsRelations = relations(MealConsumptionLogsTable, ({ one }) => ({
+  user: one(UsersTable, {
+    fields: [MealConsumptionLogsTable.userId],
+    references: [UsersTable.userId],
+  }),
+  mealPlan: one(MealPlansTable, {
+    fields: [MealConsumptionLogsTable.mealPlanId],
+    references: [MealPlansTable.mealPlanId],
+  }),
+}));
+
+
   
   // Types
   export type TIUser = typeof UsersTable.$inferInsert;
@@ -389,4 +420,6 @@ export const supportTicketsRelations = relations(SupportTicketsTable, ({ one }) 
 
   export type TISupportTicket = typeof SupportTicketsTable.$inferInsert;
   export type TSSupportTicket = typeof SupportTicketsTable.$inferSelect;
-  
+
+export type TIMealConsumptionLog = typeof MealConsumptionLogsTable.$inferInsert;
+export type TSMealConsumptionLog = typeof MealConsumptionLogsTable.$inferSelect;
