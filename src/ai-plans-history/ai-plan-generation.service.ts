@@ -211,16 +211,18 @@ async function createWorkoutPlan(user: TSUser): Promise<TIWorkoutPlan> {
       planDescription = "Advanced hypertrophy program with specialized techniques";
     }
   }
-  // Use a different condition check for strength to fix the type comparison error
-  else if (user.fitnessGoal.includes("strength")) {
-    planName = "Strength Development Plan";
+  else if (user.fitnessGoal === "maintenance") {
+    planName = "Fitness Maintenance Plan";
     
     if (user.experienceLevel === "beginner") {
-      planDescription = "Linear progression strength program for beginners";
+      planDescription = "Balanced fitness program to maintain current physique and health";
+      durationWeeks = 10;
     } else if (user.experienceLevel === "intermediate") {
-      planDescription = "Intermediate strength program with wave periodization";
+      planDescription = "Moderate intensity program for maintaining muscle and fitness levels";
+      durationWeeks = 12;
     } else {
-      planDescription = "Advanced strength program with specialized lifts and periodization";
+      planDescription = "Advanced maintenance program with varied intensity and exercises";
+      durationWeeks = 14;
     }
   }
   else {
@@ -298,9 +300,9 @@ async function createWorkoutSessions(
     }
     
     // Adjust duration based on fitness goal
-    // Fix type comparison by checking if the string includes the text instead
-    if (user.fitnessGoal.includes("endurance")) {
-      sessionDuration += 15; // Longer sessions for endurance
+    if (user.fitnessGoal === "maintenance") {
+      // Standard duration for maintenance
+      sessionDuration = Math.max(45, sessionDuration);
     } else if (user.fitnessGoal === "weight_loss") {
       sessionDuration += 10; // Slightly longer for weight loss
     }
@@ -346,13 +348,8 @@ function determineSessionDescription(
       return `Targeted ${formattedMuscleGroup} workout with isolation and compound movements`;
     }
   }
-  // Fix comparison with string includes check
-  else if (fitnessGoal.includes("strength")) {
-    return `Heavy ${formattedMuscleGroup} workout with compound lifts and longer rest periods`;
-  }
-  // Fix comparison with string includes check
-  else if (fitnessGoal.includes("endurance")) {
-    return `High-rep ${formattedMuscleGroup} workout with minimal rest to build muscular endurance`;
+  else if (fitnessGoal === "maintenance") {
+    return `Balanced ${formattedMuscleGroup} workout with moderate intensity to maintain fitness`;
   }
   
   // Default description
@@ -535,8 +532,8 @@ async function addExercisesToSession(
     // Rule-based exercise selection and ordering
     let selectedExercises: TSExerciseLibrary[] = [];
     
-    // Rule for strength/muscle gain
-    if (user.fitnessGoal === "muscle_gain" || user.fitnessGoal.includes("strength")) {
+    // Rule for muscle gain
+    if (user.fitnessGoal === "muscle_gain") {
       // Identify compound exercises
       const compoundTerms = ['squat', 'deadlift', 'press', 'row', 'bench', 'pull-up', 'pullup', 'chin-up', 'chinup', 'dip'];
       const compoundExercises = suitableExercises.filter(ex => 
@@ -553,7 +550,7 @@ async function addExercisesToSession(
         (aiConfig.exerciseCountRange as { min: number; max: number }).max
       );
       
-      // For strength/muscle, prioritize compounds (at least 60% of exercises)
+      // For muscle gain, prioritize compounds (at least 60% of exercises)
       const minCompounds = Math.ceil(exerciseCount * 0.6);
       const compoundCount = Math.min(minCompounds, compoundExercises.length);
       const isolationCount = Math.min(exerciseCount - compoundCount, isolationExercises.length);
@@ -580,6 +577,38 @@ async function addExercisesToSession(
       selectedExercises = suitableExercises
         .sort(() => 0.5 - Math.random())
         .slice(0, Math.min(exerciseCount, suitableExercises.length));
+    }
+    // Rule for maintenance
+    else if (user.fitnessGoal === "maintenance") {
+      // For maintenance, use a balanced mix of exercises
+      const compoundTerms = ['squat', 'deadlift', 'press', 'row', 'bench', 'pull-up', 'pullup', 'chin-up', 'chinup', 'dip'];
+      const compoundExercises = suitableExercises.filter(ex => 
+        compoundTerms.some(term => ex.name.toLowerCase().includes(term))
+      );
+      
+      const isolationExercises = suitableExercises.filter(ex => 
+        !compoundTerms.some(term => ex.name.toLowerCase().includes(term))
+      );
+      
+      const exerciseCount = getRandomInt(
+        (aiConfig.exerciseCountRange as { min: number; max: number }).min,
+        (aiConfig.exerciseCountRange as { min: number; max: number }).max
+      );
+      
+      // For maintenance, balanced approach (50/50 compound and isolation)
+      const halfExercises = Math.ceil(exerciseCount / 2);
+      const compoundCount = Math.min(halfExercises, compoundExercises.length);
+      const isolationCount = Math.min(exerciseCount - compoundCount, isolationExercises.length);
+      
+      const selectedCompounds = compoundExercises
+        .sort(() => 0.5 - Math.random())
+        .slice(0, compoundCount);
+      
+      const selectedIsolations = isolationExercises
+        .sort(() => 0.5 - Math.random())
+        .slice(0, isolationCount);
+      
+      selectedExercises = [...selectedCompounds, ...selectedIsolations];
     }
     // Rule for specialized workout types based on their characteristics
     else if (["hiit_strength", "tabata", "circuit_training", "endurance", "active_recovery"].includes(muscleGroup)) {
@@ -629,18 +658,7 @@ async function addExercisesToSession(
       let reps = 0;
       let restPeriod = 0;
       
-      if (user.fitnessGoal.includes("strength")) {
-        if (isCompound) {
-          sets = getRandomInt(4, 5);
-          reps = getRandomInt(3, 6);
-          restPeriod = getRandomInt(180, 240); // 3-4 minutes
-        } else {
-          sets = getRandomInt(3, 4);
-          reps = getRandomInt(6, 10);
-          restPeriod = getRandomInt(120, 180); // 2-3 minutes
-        }
-      } 
-      else if (user.fitnessGoal === "muscle_gain") {
+      if (user.fitnessGoal === "muscle_gain") {
         if (isCompound) {
           sets = getRandomInt(3, 5);
           reps = getRandomInt(6, 12);
@@ -656,10 +674,16 @@ async function addExercisesToSession(
         reps = getRandomInt(12, 20);
         restPeriod = getRandomInt(30, 60); // 30s-1 minute
       }
-      else if (user.fitnessGoal.includes("endurance")) {
-        sets = getRandomInt(2, 4);
-        reps = getRandomInt(15, 25);
-        restPeriod = getRandomInt(30, 45); // 30-45 seconds
+      else if (user.fitnessGoal === "maintenance") {
+        if (isCompound) {
+          sets = getRandomInt(3, 4);
+          reps = getRandomInt(8, 12);
+          restPeriod = getRandomInt(60, 90); // 1-1.5 minutes
+        } else {
+          sets = getRandomInt(2, 3);
+          reps = getRandomInt(10, 15);
+          restPeriod = getRandomInt(45, 75); // 45-75 seconds
+        }
       }
       // Special handling for workout modalities
       else if (muscleGroup === "hiit_strength") {
