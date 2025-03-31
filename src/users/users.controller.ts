@@ -62,3 +62,21 @@ export const deleteUser = async (c: Context) => {
     return c.json({ error: error?.message }, 500);
   }
 };
+
+export const checkUserExists = async (c: Context) => {
+  try {
+    const email = c.req.query("email");
+    
+    if (!email) {
+      return c.json({ error: "Email parameter is required" }, 400);
+    }
+    
+    const existsUser = await userService.existsByEmail(email);
+    const exists = !!existsUser;
+
+    console.log("🚀 ~ checkUserExists ~ exists:", exists)
+    return c.json({ exists }, 200);
+  } catch (error: any) {
+    return c.json({ error: error?.message }, 500);
+  }
+};

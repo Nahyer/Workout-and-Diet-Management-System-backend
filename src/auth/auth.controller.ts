@@ -61,7 +61,7 @@ export const registerUser = async (c: Context) => {
       message: "User registered successfully", 
       user: {
         ...createdUser,
-        password: undefined 
+        password: undefined, // Exclude password from response
       },
       workoutPlanGenerated,
       nutritionPlanGenerated
@@ -83,7 +83,7 @@ export const loginUser = async (c: Context) => {
     const payload = {
       sub: userExist.userId.toString(),
       role: userExist.role,
-      exp: Math.floor(Date.now() / 1000) + 60 * 180, // 3 hours
+      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // 30 days
     };
     
     const secret = process.env.JWT_SECRET as string;
@@ -98,5 +98,43 @@ export const loginUser = async (c: Context) => {
     }, 200);
   } catch (error: any) {
     return c.json({ error: error?.message }, 400);
+  }
+};
+
+
+export const issueOAuthToken = async (c: Context) => {
+  try {
+    const { email, oauthProvider, oauthId } = await c.req.json();
+    
+    // // Check if user exists
+    const user = await userService.existsByEmail(email);
+    
+    if (!user) {
+      return c.json({ error: "User not found" }, 404);
+    }
+  
+    // Create and sign JWT token
+    const payload = {
+      userId: user.userId!.toString(),
+      role: user.role,
+      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // 30 days
+      oauthProvider,
+      oauthId
+    };
+    
+    const secret = process.env.JWT_SECRET as string;
+    const token = await sign(payload, secret);
+    
+    return c.json({
+      token,
+      user: {
+        ...user,
+        password: undefined
+      }
+    }, 200);
+    
+  } catch (error: any) {
+    console.error("OAuth token error:", error);
+    return c.json({ error: error?.message || "Failed to issue OAuth token" }, 400);
   }
 };

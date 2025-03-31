@@ -7,14 +7,13 @@ import {
     timestamp,
     boolean,
     pgEnum,
-    primaryKey,
     decimal,
     date,
     json,
   } from "drizzle-orm/pg-core";
   import { relations } from "drizzle-orm";
   
-  // Enums
+  // Enumsp
   export const userRoleEnum = pgEnum("user_role", ["user", "admin"]); 
   export const fitnessGoalEnum = pgEnum("fitness_goal", ["weight_loss", "muscle_gain", "maintenance"]);
   export const experienceLevelEnum = pgEnum("experience_level", ["beginner", "intermediate", "advanced"]);
@@ -63,7 +62,7 @@ export const WorkoutPlansTable = pgTable("workout_plans", {
     planId: serial("plan_id").primaryKey(),
     userId: integer("user_id")
       .notNull()
-      .references(() => UsersTable.userId),
+      .references(() => UsersTable.userId, { onDelete: "cascade" }),
     name: varchar("name", { length: 100 }).notNull(),
     description: text("description"),
     goal: fitnessGoalEnum("goal").notNull(),
@@ -107,7 +106,7 @@ export const WorkoutPlansTable = pgTable("workout_plans", {
   export const NutritionPlansTable = pgTable("nutrition_plans", {
     nutritionPlanId: serial("nutrition_plan_id").primaryKey(),
     userId: integer("user_id")
-      .references(() => UsersTable.userId),
+      .references(() => UsersTable.userId, { onDelete: "cascade" }),
     goal: fitnessGoalEnum("goal").notNull(),
     dailyCalories: integer("daily_calories").notNull(),
     proteinGrams: integer("protein_grams").notNull(),
@@ -142,7 +141,7 @@ export const WorkoutPlansTable = pgTable("workout_plans", {
     progressId: serial("progress_id").primaryKey(),
     userId: integer("user_id")
       .notNull()
-      .references(() => UsersTable.userId),
+      .references(() => UsersTable.userId, { onDelete: "cascade" }),
     date: date("date").notNull(),
     weight: decimal("weight"), // in kg
     bodyFatPercentage: decimal("body_fat_percentage"),
@@ -159,7 +158,7 @@ export const WorkoutPlansTable = pgTable("workout_plans", {
     logId: serial("log_id").primaryKey(),
     userId: integer("user_id")
       .notNull()
-      .references(() => UsersTable.userId),
+      .references(() => UsersTable.userId, { onDelete: "cascade" }),
     sessionId: integer("session_id")
       .notNull()
       .references(() => WorkoutSessionsTable.sessionId),
@@ -190,7 +189,7 @@ export const WorkoutPlansTable = pgTable("workout_plans", {
     historyId: serial("history_id").primaryKey(),
     userId: integer("user_id")
       .notNull()
-      .references(() => UsersTable.userId),
+      .references(() => UsersTable.userId, { onDelete: "cascade" }),
     workoutPlanId: integer("workout_plan_id")
       .references(() => WorkoutPlansTable.planId),
     nutritionPlanId: integer("nutrition_plan_id")
@@ -221,7 +220,7 @@ export const WorkoutPlansTable = pgTable("workout_plans", {
 export const SupportTicketsTable = pgTable("support_tickets", {
   ticketId: serial("ticket_id").primaryKey(),
   userId: integer("user_id")
-    .references(() => UsersTable.userId)
+    .references(() => UsersTable.userId, { onDelete: "cascade" })
     .notNull(),
   subject: varchar("subject", { length: 255 }).notNull(),
   message: text("message").notNull(),
@@ -389,4 +388,3 @@ export const supportTicketsRelations = relations(SupportTicketsTable, ({ one }) 
 
   export type TISupportTicket = typeof SupportTicketsTable.$inferInsert;
   export type TSSupportTicket = typeof SupportTicketsTable.$inferSelect;
-  

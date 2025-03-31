@@ -45,7 +45,16 @@ type UserWithDetails = {
   }[];
 };
 
-export const userService = {
+interface UserService {
+  list: () => Promise<UserWithDetails[]>;
+  getById: (id: number) => Promise<UserWithDetails | undefined>;
+  create: (user: TIUser) => Promise<TIUser>;
+  update: (id: number, user: Partial<TIUser>) => Promise<TIUser | null>;
+  delete: (id: number) => Promise<boolean>;
+  existsByEmail: (email: string) => Promise<TIUser | null>;
+}
+
+export const userService: UserService = {
   list: async (): Promise<UserWithDetails[]> => {
     const users = await db.query.UsersTable.findMany({
       columns: {
@@ -254,4 +263,18 @@ export const userService = {
       .returning();
     return result.length > 0;
   },
+
+  existsByEmail: async (email: string): Promise<TIUser | null> => {
+    try {
+      const user = await db.query.UsersTable.findFirst({
+        where: (users, { eq }) => eq(users.email, email),
+      });
+      return user || null;
+    } catch (error) {
+      console.error('Error checking if user exists:', error);
+      throw new Error('Failed to check if user exists');
+    }
+  },
+
 };
+

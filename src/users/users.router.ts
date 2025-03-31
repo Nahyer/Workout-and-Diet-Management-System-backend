@@ -5,6 +5,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  checkUserExists,
 } from "./users.controller";
 import { zValidator } from "@hono/zod-validator";
 import { userSchema } from "../validators";
@@ -13,6 +14,7 @@ import { userSchema } from "../validators";
 export const userRouter = new Hono();
 
 userRouter.get("/users", listUsers);
+userRouter.get("/users/by-email", checkUserExists); 
 userRouter.get("/users/:id", getUserById);
 userRouter.post("/users", zValidator("json", userSchema), createUser);
 userRouter.put("/users/:id", zValidator("json", userSchema), updateUser);

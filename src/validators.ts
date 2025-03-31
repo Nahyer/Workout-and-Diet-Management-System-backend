@@ -153,6 +153,12 @@ export const aiConfigurationSchema = z.object({
   }))
 });
 
+export const oauthTokenSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  oauthProvider: z.string().min(1, "OAuth provider is required"),
+  oauthId: z.string().min(1, "OAuth ID is required"),
+});
+
 
 export const registrationSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
