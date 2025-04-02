@@ -24,6 +24,7 @@ import { supportTicketRouter } from "./support-tickets/support-tickets.router";
 import { dashboardRouter } from './dashboard/dashboard.router';
 import { mealConsumptionRouter } from './meal-consumption/meal-consumption.router';
 import { authRouter } from "./auth/auth.router";
+import { statsRouter } from "./statistics/statistics.router";
 
 const app = new Hono();
 
@@ -58,7 +59,7 @@ app.route("/api", supportTicketRouter);
 app.route('/api', dashboardRouter);
 app.route("/api", mealConsumptionRouter);
 app.route("/api/auth", authRouter);
-
+app.route("/api", statsRouter);
 
 
 console.log(`Server is running on http://localhost:${process.env.PORT}`);
