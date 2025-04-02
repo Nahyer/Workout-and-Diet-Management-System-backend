@@ -22,6 +22,7 @@ import { aiPlansHistoryRouter } from "./ai-plans-history/ai-plans-history.router
 import { aiConfigurationRouter } from "./ai-configuration/ai-configuration.router";
 import { supportTicketRouter } from "./support-tickets/support-tickets.router";
 import { dashboardRouter } from './dashboard/dashboard.router';
+import { mealConsumptionRouter } from './meal-consumption/meal-consumption.router';
 import { authRouter } from "./auth/auth.router";
 
 const app = new Hono();
@@ -55,6 +56,7 @@ app.route("/api", aiPlansHistoryRouter);
 app.route("/api", aiConfigurationRouter);
 app.route("/api", supportTicketRouter);
 app.route('/api', dashboardRouter);
+app.route("/api", mealConsumptionRouter);
 app.route("/api/auth", authRouter);
 
 

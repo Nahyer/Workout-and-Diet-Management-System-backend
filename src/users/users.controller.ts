@@ -87,3 +87,15 @@ export const checkUserExists = async (c: Context) => {
     return c.json({ error: error?.message }, 500);
   }
 };
+
+export const getActiveUsers = async (c: Context) => {
+  try {
+    const data = await userService.getActiveUsers();
+    if (!data || data.length === 0) {
+      return c.json({ message: "No active users found" }, 404);
+    }
+    return c.json(data, 200);
+  } catch (error: any) {
+    return c.json({ error: error?.message }, 500);
+  }
+};

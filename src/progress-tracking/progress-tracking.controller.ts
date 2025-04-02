@@ -28,8 +28,13 @@ export const getProgressTrackingById = async (c: Context) => {
 
 export const getProgressTrackingByUserId = async (c: Context) => {
   try {
-    const userId = c.req.param("userId");
-    const data = await progressTrackingService.getByUserId(Number(userId));
+    const userId = Number(c.req.param("userId"));
+    const { limit = "7", startDate, endDate } = c.req.query(); // Optional query params
+    const data = await progressTrackingService.getByUserId(userId, {
+      limit: Number(limit),
+      startDate: startDate ? new Date(startDate) : undefined,
+      endDate: endDate ? new Date(endDate) : undefined,
+    });
     if (!data || data.length === 0) {
       return c.json({ message: "No progress records found for this user" }, 404);
     }
